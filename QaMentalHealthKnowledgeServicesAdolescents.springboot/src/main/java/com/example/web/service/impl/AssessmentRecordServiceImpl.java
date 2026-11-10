@@ -115,6 +115,10 @@ public class AssessmentRecordServiceImpl extends ServiceImpl<AssessmentRecordMap
     @SneakyThrows
     @Override
     public PagedResult<AssessmentRecordDto> list(AssessmentRecordPagedInput input) {
+        if (!AccessControl.isAdmin()) {
+            if (input.getUserId() != null) AccessControl.requireOwner(input.getUserId());
+            input.setUserId(AccessControl.requireUser().getUserId());
+        }
 			//构建where条件+排序
         LambdaQueryWrapper<AssessmentRecord> queryWrapper = builderQuery(input);
         // 动态排序处理
@@ -162,19 +166,18 @@ public class AssessmentRecordServiceImpl extends ServiceImpl<AssessmentRecordMap
     @SneakyThrows
     @Override
     public AssessmentRecordDto addOrEdit(AssessmentRecordDto input) {
-        //声明一个测评记录实体
-        AssessmentRecord assessmentRecord=input.mapToEntity();  
-        //调用数据库的增加或者修改方法
-        saveOrUpdate(assessmentRecord);
-        //把传输模型返回给前端
-        return assessmentRecord.mapToDto();
+        throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED, "请使用测评提交接口，测评结果不可直接修改");
     }
+
     /**
      * 测评记录删除
      */
     @Override
     public void deleteById(IdInput input) {
         AssessmentRecord entity = assessmentRecordMapper.selectById(input.getId());
+        if (entity == null) return;
+        AccessControl.requireOwner(entity.getUserId());
         assessmentRecordMapper.deleteById(entity);
     }
 
@@ -182,6 +185,7 @@ public class AssessmentRecordServiceImpl extends ServiceImpl<AssessmentRecordMap
      * 测评记录批量删除
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public void batchDeleteByIds(IdsInput input) {
         for (Integer id : input.getIds()) {
             IdInput idInput = new IdInput();

@@ -95,7 +95,8 @@ public class ArticleController {
     @RequestMapping(value = "/recommend", method = RequestMethod.POST)
     @SneakyThrows
     public List<ArticleDto> recommend(@RequestBody Map<String, Integer> input) {
-        Integer userId = input.get("userId");
+        var currentUser = com.example.web.utils.BaseContext.getCurrentUserDto();
+        Integer userId = currentUser == null ? 0 : currentUser.getUserId();
         Integer currentArticleId = input.get("currentArticleId");
         if (userId == null)
             userId = 0;

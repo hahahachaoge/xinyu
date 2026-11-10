@@ -14,9 +14,15 @@ import com.example.web.interceptor.CurrentUserInterceptor;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
+    private final CurrentUserInterceptor currentUserInterceptor;
+
+    public WebMvcConfig(CurrentUserInterceptor currentUserInterceptor) {
+        this.currentUserInterceptor = currentUserInterceptor;
+    }
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new CurrentUserInterceptor())
+        registry.addInterceptor(currentUserInterceptor)
                 .addPathPatterns("/**");
     }
 

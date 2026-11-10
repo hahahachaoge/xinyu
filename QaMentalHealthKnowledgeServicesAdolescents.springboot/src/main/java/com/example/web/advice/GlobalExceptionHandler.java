@@ -14,6 +14,27 @@ import com.example.web.exception.CustomException;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<ResponseData<?>> malformedRequest() {
+        ResponseData<Object> body = new ResponseData<>();
+        body.setCode("400");
+        body.setSuccess(false);
+        body.setMsg("请求格式或字段值无效");
+        return org.springframework.http.ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<ResponseData<?>> accessException(
+            org.springframework.web.server.ResponseStatusException e) {
+        ResponseData<Object> body = new ResponseData<>();
+        body.setCode(String.valueOf(e.getStatusCode().value()));
+        body.setSuccess(false);
+        body.setMsg(e.getReason());
+        return org.springframework.http.ResponseEntity.status(e.getStatusCode()).body(body);
+    }
+
     @ExceptionHandler(value = CustomException.class)
     @ResponseBody
     public ResponseData<?> bizExceptionHandler(CustomException e) {

@@ -98,7 +98,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
           	            
            //查询出关联的SysUser表信息           
             SysUser  publisher= sysUserMapper.selectById(item.getPublisherId());
-            item.setPublisherDto(publisher!=null?publisher.mapToDto():new SysUserDto());              
+            item.setPublisherDto(publisher!=null?publisher.mapToPublicDto():new SysUserDto());
            
           	            
            //查询出关联的NoticeType表信息           

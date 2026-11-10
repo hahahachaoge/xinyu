@@ -10,6 +10,7 @@ import com.example.web.exception.CustomException;
 import com.example.web.mapper.*;
 import com.example.web.service.AiChatService;
 import com.example.web.utils.Extension;
+import com.example.web.utils.AccessControl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.data.embedding.Embedding;
@@ -68,6 +69,13 @@ public class AiChatServiceImpl implements AiChatService {
     @Autowired
     private DeepSeekConfig deepSeekConfig;
 
+    private ChatSession requireSession(Integer sessionId) {
+        ChatSession session = sessionId == null ? null : chatSessionMapper.selectById(sessionId);
+        if (session == null) throw new CustomException("会话不存在");
+        AccessControl.requireOwner(session.getUserId());
+        return session;
+    }
+
     private static final String SYSTEM_PROMPT = "你是一个专业的青少年心理健康咨询助手。你的回答应该：\n" +
             "1. 温暖、专业、有同理心，适合青少年阅读\n" +
             "2. 基于提供的知识库内容进行回答，不要编造信息\n" +
@@ -82,6 +90,8 @@ public class AiChatServiceImpl implements AiChatService {
     @SneakyThrows
     @Override
     public ChatSessionDto createSession(Integer userId, String firstMessage) {
+        userId = AccessControl.requireUser().getUserId();
+        if (firstMessage == null || firstMessage.isBlank()) throw new CustomException("问题不能为空");
         ChatSession session = new ChatSession();
         session.setUserId(userId);
         // 用第一条消息的前20个字作为标题
@@ -103,10 +113,7 @@ public class AiChatServiceImpl implements AiChatService {
     @SneakyThrows
     @Override
     public ChatMessageDto chat(Integer sessionId, Integer userId, String question) {
-        ChatSession session = chatSessionMapper.selectById(sessionId);
-        if (session == null) {
-            throw new CustomException("会话不存在");
-        }
+        ChatSession session = requireSession(sessionId);
 
         // 1. 保存用户消息
         ChatMessage userMsg = new ChatMessage();
@@ -167,19 +174,12 @@ public class AiChatServiceImpl implements AiChatService {
      */
     @Override
     public void chatStream(Integer sessionId, Integer userId, String question, HttpServletResponse response) {
+        ChatSession session = requireSession(sessionId);
         try {
             response.setContentType("text/event-stream");
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Cache-Control", "no-cache");
             response.setHeader("Connection", "keep-alive");
-
-            ChatSession session = chatSessionMapper.selectById(sessionId);
-            if (session == null) {
-                PrintWriter writer = response.getWriter();
-                writer.write("data: {\"error\":\"会话不存在\"}\n\n");
-                writer.flush();
-                return;
-            }
 
             // 1. 保存用户消息
             ChatMessage userMsg = new ChatMessage();
@@ -264,6 +264,7 @@ public class AiChatServiceImpl implements AiChatService {
     @SneakyThrows
     @Override
     public List<ChatMessageDto> getMessagesBySessionId(Integer sessionId) {
+        requireSession(sessionId);
         List<ChatMessage> messages = chatMessageMapper.selectList(
                 Wrappers.<ChatMessage>lambdaQuery()
                         .eq(ChatMessage::getChatSessionId, sessionId)
@@ -323,6 +324,10 @@ public class AiChatServiceImpl implements AiChatService {
     @SneakyThrows
     @Override
     public void submitFeedback(Integer userId, Integer chatMessageId, Integer rating, String feedbackContent) {
+        userId = AccessControl.requireUser().getUserId();
+        ChatMessage message = chatMessageMapper.selectById(chatMessageId);
+        if (message == null) throw new CustomException("消息不存在");
+        requireSession(message.getChatSessionId());
         // 检查是否已反馈
         Long count = qaFeedbackMapper.selectCount(
                 Wrappers.<QaFeedback>lambdaQuery()

@@ -93,6 +93,10 @@ public class FavoriteServiceImpl extends ServiceImpl<FavoriteMapper, Favorite> i
     @SneakyThrows
     @Override
     public PagedResult<FavoriteDto> list(FavoritePagedInput input) {
+        if (!AccessControl.isAdmin()) {
+            if (input.getUserId() != null) AccessControl.requireOwner(input.getUserId());
+            input.setUserId(AccessControl.requireUser().getUserId());
+        }
         // 构建where条件+排序
         LambdaQueryWrapper<Favorite> queryWrapper = builderQuery(input);
         // 动态排序处理
@@ -153,6 +157,8 @@ public class FavoriteServiceImpl extends ServiceImpl<FavoriteMapper, Favorite> i
     @Override
     public void deleteById(IdInput input) {
         Favorite entity = favoriteMapper.selectById(input.getId());
+        if (entity == null) return;
+        AccessControl.requireOwner(entity.getUserId());
         favoriteMapper.deleteById(entity);
     }
 
@@ -205,6 +211,7 @@ public class FavoriteServiceImpl extends ServiceImpl<FavoriteMapper, Favorite> i
         if (entity == null) {
             throw new CustomException("收藏记录不存在");
         }
+        AccessControl.requireOwner(entity.getUserId());
         favoriteMapper.deleteById(entity.getId());
     }
 

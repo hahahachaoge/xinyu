@@ -32,6 +32,14 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/assessmentRecord")
 public class AssessmentRecordController {
     @Autowired
+    private AssessmentSubmissionService assessmentSubmissionService;
+
+    @PostMapping("/submit")
+    public AssessmentRecordDto submit(@RequestBody AssessmentSubmitInput input) {
+        return assessmentSubmissionService.submit(input);
+    }
+
+    @Autowired
     private  AssessmentRecordService assessmentRecordService;
     @Autowired
     private AssessmentRecordMapper assessmentRecordMapper;

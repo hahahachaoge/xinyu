@@ -110,7 +110,8 @@ public class AiChatController {
     public void deleteSession(@RequestBody IdInput input) {
         Integer userId = BaseContext.getCurrentUserDto().getUserId();
         ChatSession session = chatSessionMapper.selectById(input.getId());
-        if (session != null && session.getUserId().equals(userId)) {
+        if (session != null) {
+            com.example.web.utils.AccessControl.requireOwner(session.getUserId());
             // 删除会话下的所有消息
             chatMessageMapper.delete(
                     Wrappers.lambdaQuery(com.example.web.entity.ChatMessage.class)

@@ -1,6 +1,6 @@
 <template>
     <div class="upload-files-wrap">
-        <el-upload :action="uploadUrl" list-type="text" :show-file-list="true" :on-success="handleUploadSuccess"
+        <el-upload :action="uploadUrl" :headers="uploadHeaders" list-type="text" :show-file-list="true" :on-success="handleUploadSuccess"
             :on-remove="handleRemove" :file-list="fileList" :limit="limit" :multiple="true" :accept="accept">
             <el-button size="small" type="primary">点击上传</el-button>
             <div slot="tip" class="el-upload__tip">请上传资源文件<span style="padding-left:10px;color:rgb(237, 95, 24)"><span
@@ -12,8 +12,11 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { post } from '@/api/http';
+import { useCommonStore } from '@/store';
+const commonStore = useCommonStore();
+const uploadHeaders = computed(() => ({ Authorization: commonStore.token || '' }));
 // 定义props
 const props = defineProps({
     modelValue: {

@@ -17,6 +17,7 @@ public class SysUserDto extends BaseDto {
 
     private String userName;// 账号
 
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
     private String passWord;// 密码
 
     private String email;// 邮箱
@@ -30,9 +31,11 @@ public class SysUserDto extends BaseDto {
     private Integer roleType;// 账号角色
 
     public String getRoleTypeFormat() {
+        if (roleType == null) return "";
         return RoleTypeEnum.getEnum(roleType).toString();
     }
 
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
     private String orginPassword;// 原密码(修改密码时使用)
     /**
      * 把账号传输模型转换成账号实体

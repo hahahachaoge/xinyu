@@ -5,7 +5,8 @@ import lombok.Data;
 @Data
 public class SortItemDto {
 
+    @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = SortFieldDeserializer.class)
     private String fieldName;
 
-    private Boolean isAsc;
+    private Boolean isAsc = false;
 }

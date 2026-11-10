@@ -33,6 +33,9 @@ import com.example.web.exception.CustomException;
 import com.example.web.mapper.SysUserMapper;
 import com.example.web.service.SysUserService;
 import com.example.web.utils.Extension;
+import com.example.web.utils.AccessControl;
+import com.example.web.utils.PasswordUtils;
+import com.example.web.enums.RoleTypeEnum;
 import com.example.web.utils.JWTUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -54,6 +57,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     @SneakyThrows
     public PagedResult<SysUserDto> list(SysUserPagedInput input) {
+        if (!AccessControl.isAdmin()) {
+            if (input.getId() != null) AccessControl.requireOwner(input.getId());
+            input.setId(AccessControl.requireUser().getUserId());
+        }
         // 声明一个支持账号查询的(拉姆达)表达式
         LambdaQueryWrapper<SysUser> queryWrapper = Wrappers.<SysUser>lambdaQuery()
                 .eq(input.getId() != null && input.getId() != 0, SysUser::getId, input.getId());
@@ -106,29 +113,51 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public SysUserDto addOrEdit(SysUserDto input) {
 
-        if (Extension.isNullOrEmpty(input.getUserName())) {
+        if (!AccessControl.isAdmin()) {
+            if (input.getId() == null) throw new CustomException("只能修改自己的资料");
+            AccessControl.requireOwner(input.getId());
+            SysUser user = requireAccount(input.getId());
+            user.setNickName(input.getNickName());
+            user.setEmail(input.getEmail());
+            user.setPhoneNumber(input.getPhoneNumber());
+            user.setImageUrls(input.getImageUrls());
+            sysUserMpper.updateById(user);
+            return user.mapToDto();
+        }
+        if (input.getRoleType() == null || (input.getRoleType() != 1 && input.getRoleType() != 2))
+            throw new CustomException("账号角色不正确");
+        return saveAccount(input);
+    }
+
+    @SneakyThrows
+    private SysUserDto saveAccount(SysUserDto input) {
+        if (input.getUserName() == null || input.getUserName().isBlank())
             throw new CustomException("账号名不能为空");
-        }
-        if (input.isAdd() && Extension.isNullOrEmpty(input.getPassWord())) {
-            throw new CustomException("密码不能为空");
-        }
+        boolean adding = input.isAdd();
+        SysUser user = adding ? new SysUser() : requireAccount(input.getId());
+        Long duplicates = sysUserMpper.selectCount(Wrappers.<SysUser>lambdaQuery()
+                .eq(SysUser::getUserName, input.getUserName())
+                .ne(!adding, SysUser::getId, input.getId()));
+        if (duplicates > 0) throw new CustomException("该账号名已经存在");
+        if (adding || (input.getPassWord() != null && !input.getPassWord().isBlank()))
+            user.setPassWord(PasswordUtils.encode(input.getPassWord()));
+        user.setUserName(input.getUserName());
+        user.setRoleType(input.getRoleType());
+        user.setNickName(input.getNickName());
+        user.setEmail(input.getEmail());
+        user.setPhoneNumber(input.getPhoneNumber());
+        user.setImageUrls(input.getImageUrls());
+        if (adding) {
+            user.setCreationTime(java.time.LocalDateTime.now());
+            sysUserMpper.insert(user);
+        } else sysUserMpper.updateById(user);
+        return user.mapToDto();
+    }
 
-        // 如果前端传入新的密码且不是MD5加密的，则进行MD5加密
-        if (Extension.isNotNullOrEmpty(input.getPassWord()) && !Extension.isMD5Encrypt(input.getPassWord())) {
-            input.setPassWord(Extension.md5Encrypt(input.getPassWord()));
-        }
-        // 如果前端传入的密码为空且
-        if (Extension.isNullOrEmpty(input.getPassWord())) {
-            // 查询账号
-            SysUser appUser = sysUserMpper.selectById(input.getId());
-            input.setPassWord(appUser.getPassWord());
-        }
-
-        SysUser appUser = input.mapToEntity();
-        // 调用数据库的增加或者修改方法
-        saveOrUpdate(appUser);
-        // 把传输模型返回给前端
-        return appUser.mapToDto();
+    private SysUser requireAccount(Integer id) {
+        SysUser user = id == null ? null : sysUserMpper.selectById(id);
+        if (user == null) throw new CustomException("账号不存在");
+        return user;
     }
 
     /**
@@ -136,6 +165,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      */
     @Override
     public void deleteById(IdInput input) {
+        AccessControl.requireAdmin();
         SysUser entity = sysUserMpper.selectById(input.getId());
         sysUserMpper.deleteById(entity);
     }
@@ -168,26 +198,24 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      */
     @Override
     public String signIn(SysUserDto input) {
-        LambdaQueryWrapper<SysUser> queryWrapper = Wrappers.<SysUser>lambdaQuery();
-        if (Extension.isNotNullOrEmpty(input.getUserName())) {
-            queryWrapper.eq(SysUser::getUserName, input.getUserName());
-        }
-        if (Extension.isNotNullOrEmpty(input.getPassWord())) {
-            queryWrapper.eq(SysUser::getPassWord, Extension.md5Encrypt(input.getPassWord()));
-        }
-        if (input.getRoleType() != null) {
-            queryWrapper.eq(SysUser::getRoleType, input.getRoleType());
-        }
-
-        List<SysUser> items = sysUserMpper.selectList(queryWrapper);
-        if (items.stream().count() == 0) {
-            throw new CustomException("请检查登录的账号或者密码,角色是否都正确!");
+        if (input.getUserName() == null || input.getUserName().isBlank()
+                || input.getPassWord() == null || input.getPassWord().isBlank())
+            throw new CustomException("账号和密码不能为空");
+        SysUser user = sysUserMpper.selectList(Wrappers.<SysUser>lambdaQuery()
+                .eq(SysUser::getUserName, input.getUserName())).stream().findFirst().orElse(null);
+        if (user == null || (user.getRoleType() == null || (user.getRoleType() != 1 && user.getRoleType() != 2))
+                || (input.getRoleType() != null && !input.getRoleType().equals(user.getRoleType()))
+                || !PasswordUtils.matches(input.getPassWord(), user.getPassWord()))
+            throw new CustomException("账号、密码或角色不正确");
+        if (PasswordUtils.needsUpgrade(user.getPassWord())) {
+            user.setPassWord(PasswordUtils.upgrade(input.getPassWord()));
+            sysUserMpper.updateById(user);
         }
         Map<String, String> map = new HashMap<>();
-        map.put(SysConst.UserIdClaim, items.get(0).getId().toString());
-        map.put(SysConst.RoleTypeClaim, items.get(0).getRoleType().toString());
-        String token = JWTUtils.getToken(map);
-        return token;
+        map.put(SysConst.UserIdClaim, user.getId().toString());
+        map.put(SysConst.RoleTypeClaim, user.getRoleType().toString());
+        map.put(JWTUtils.CREDENTIAL_CLAIM, JWTUtils.credentialVersion(user.getPassWord()));
+        return JWTUtils.getToken(map);
     }
 
     /**
@@ -196,8 +224,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public SysUserDto register(SysUserDto input) {
 
-        // 对密码进行MD5加密
-        input.setPassWord(Extension.md5Encrypt(input.getPassWord()));
+        if (input.getUserName() == null || input.getUserName().isBlank())
+            throw new CustomException("账号名不能为空");
+        input.setId(null);
+        input.setRoleType(RoleTypeEnum.用户.index());
         // 检查账号名是否存在
         Long userCount = sysUserMpper.selectCount(Wrappers.<SysUser>lambdaQuery()
                 .eq(Extension.isNotNullOrEmpty(input.getUserName()), SysUser::getUserName, input.getUserName()));
@@ -221,7 +251,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 throw new CustomException("该手机号已经存在!");
             }
         }
-        return addOrEdit(input);
+        return saveAccount(input);
     }
 
     /**
@@ -230,59 +260,30 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public void forgetPassword(SysUserDto input) {
 
-        // 检查账号名是否存在
-        SysUser appUser = sysUserMpper.selectList(Wrappers.<SysUser>lambdaQuery()
-                .eq(Extension.isNotNullOrEmpty(input.getUserName()), SysUser::getUserName, input.getUserName()))
-                .stream().findFirst().orElse(null);
-
-        if (appUser == null) {
-            throw new CustomException("该账号名不存在!");
-        }
-        if (appUser.getPhoneNumber() == null) {
-            throw new CustomException("该账号未绑定手机号!");
-        }
-        if (Extension.isNotNullOrEmpty(input.getEmail()) && appUser.getEmail() == null) {
-            throw new CustomException("该账号未绑定邮箱!");
-        }
-        if (!appUser.getPhoneNumber().equals(input.getPhoneNumber())) {
-            throw new CustomException("请输入你绑定的手机号!");
-        }
-        if (input.getEmail() != null && !input.getEmail().equals(appUser.getEmail())) {
-            throw new CustomException("请输入你绑定的邮箱!");
-        }
-        appUser.setPassWord(Extension.md5Encrypt(input.getPassWord()));
-        saveOrUpdate(appUser);
+        throw new CustomException("暂未接入验证码验证，请联系管理员重置密码");
     }
 
-    /** 修改密码 */
     @Override
     public void changePassword(SysUserDto input) {
-        SysUser appUser = sysUserMpper.selectById(input.getId());
-        if (!Extension.md5Encrypt(input.getOrginPassword()).equals(appUser.getPassWord())) {
-            throw new CustomException("旧密码错误!");
-        }
-        // 对当前输入的密码进行加密
-        if (Extension.md5Encrypt(input.getPassWord()).equals(appUser.getPassWord())) {
-            throw new CustomException("新密码不能与旧密码相同!");
-        }
-
-        appUser.setPassWord(Extension.md5Encrypt(input.getPassWord()));
-        saveOrUpdate(appUser);
+        Integer userId = AccessControl.requireUser().getUserId();
+        if (input.getId() != null && !userId.equals(input.getId()))
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "只能修改自己的密码");
+        SysUser user = requireAccount(userId);
+        if (!PasswordUtils.matches(input.getOrginPassword(), user.getPassWord()))
+            throw new CustomException("旧密码错误");
+        if (PasswordUtils.matches(input.getPassWord(), user.getPassWord()))
+            throw new CustomException("新密码不能与旧密码相同");
+        user.setPassWord(PasswordUtils.encode(input.getPassWord()));
+        sysUserMpper.updateById(user);
     }
 
-    /**
-     * 重置密码
-     */
     @Override
     public void resetPassword(SysUserDto input) {
-        SysUser appUser = sysUserMpper.selectById(input.getId());
-        // 重置密码必须明确提供新密码，不使用共享默认密码
-        if (!Extension.isNotNullOrEmpty(input.getPassWord())) {
-            throw new CustomException("请提供新密码");
-        }
-        String password = input.getPassWord();
-        appUser.setPassWord(Extension.md5Encrypt(password));
-        saveOrUpdate(appUser);
+        AccessControl.requireAdmin();
+        SysUser user = requireAccount(input.getId());
+        user.setPassWord(PasswordUtils.encode(input.getPassWord()));
+        sysUserMpper.updateById(user);
     }
 
     /**

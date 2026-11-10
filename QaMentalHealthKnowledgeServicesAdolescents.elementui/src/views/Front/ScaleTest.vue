@@ -30,7 +30,7 @@
 import { post } from '@/api/http';
 import { useCommonStore } from '@/store';
 import WellbeingIcon from '@/components/WellbeingIcon.vue';
-import { answeredQuestionCount, evaluateAssessment, hasQuestionAnswer, localFinishTime, parseQuestionOptions } from '@/utils/assessmentAnswers';
+import { answeredQuestionCount, hasQuestionAnswer, parseQuestionOptions } from '@/utils/assessmentAnswers';
 import companionImage from '@/assets/test-writing-companion.png';
 import { Back, CircleCheckFilled, Headset, Right } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
@@ -49,7 +49,6 @@ const answers = ref({});
 const result = ref(null);
 const scaleInfo = ref({});
 const questions = ref([]);
-const scoreRules = ref([]);
 const questionHeading = ref(null);
 let loadEpoch = 0;
 let disposed = false;
@@ -62,21 +61,20 @@ const resetAnswers = () => { currentIndex.value = 0; answers.value = {}; result.
 const loadData = async () => {
     const epoch = ++loadEpoch, id = Number(route.query.id);
     loading.value = true; loadError.value = ''; submitting.value = false; resetAnswers();
-    scaleInfo.value = {}; questions.value = []; scoreRules.value = [];
+    scaleInfo.value = {}; questions.value = [];
     if (!Number.isInteger(id) || id <= 0) { loadError.value = 'missing'; loading.value = false; return; }
     try {
-        const [info, questionList, rules] = await Promise.all([
+        const [info, questionList] = await Promise.all([
             post('/scaleInfo/findById', { id }),
-            post('/scaleQuestion/list', { page: 1, limit: 100, scaleInfoId: id }),
-            post('/scoreRule/list', { page: 1, limit: 100, scaleInfoId: id })
+            post('/scaleQuestion/list', { page: 1, limit: 100, scaleInfoId: id })
         ]);
         if (!isCurrent(epoch, id)) return;
-        if (!info.success || !questionList.success || !rules.success) throw new Error('加载失败');
+        if (!info.success || !questionList.success) throw new Error('加载失败');
         if (!info.data?.id) { loadError.value = 'missing'; return; }
         const items = Array.isArray(questionList.data?.items) ? [...questionList.data.items] : [];
         items.sort((a, b) => (a.questionIndex || 0) - (b.questionIndex || 0));
-        if (!items.length || items.some(item => !parseQuestionOptions(item).length) || !rules.data?.items?.length) throw new Error('测评配置不完整');
-        scaleInfo.value = info.data; questions.value = items; scoreRules.value = rules.data.items;
+        if (!items.length || items.some(item => !parseQuestionOptions(item).length)) throw new Error('测评配置不完整');
+        scaleInfo.value = info.data; questions.value = items;
     } catch { if (isCurrent(epoch, id)) loadError.value = 'failed'; }
     finally { if (isCurrent(epoch, id)) loading.value = false; }
 };
@@ -89,11 +87,13 @@ const submitTest = async () => {
     const epoch = loadEpoch, id = Number(route.query.id);
     submitting.value = true; submitError.value = '';
     try {
-        const evaluation = evaluateAssessment(questions.value, answers.value, scoreRules.value);
-        const saved = await post('/assessmentRecord/addOrEdit', { userId: commonStore.userId, scaleInfoId: id, totalScore: evaluation.totalScore, resultLabel: evaluation.resultLabel, resultInterpretation: evaluation.resultInterpretation, answerJson: JSON.stringify(evaluation.answerDetails), finishTime: localFinishTime() });
+        const saved = await post('/assessmentRecord/submit', {
+            scaleInfoId: id,
+            answers: questions.value.map((question, index) => ({ questionId: question.id, optionIndex: answers.value[index] }))
+        });
         if (!isCurrent(epoch, id)) return;
         if (!saved.success) { submitError.value = '测评结果暂时未能保存，请稍后重试。'; return; }
-        result.value = evaluation;
+        result.value = saved.data;
         await nextTick(); document.getElementById('outcome-title')?.scrollIntoView({ block: 'center', behavior: 'auto' });
     } catch (error) { if (isCurrent(epoch, id)) submitError.value = error.message || '提交失败，请稍后重试。'; }
     finally { if (isCurrent(epoch, id)) submitting.value = false; }

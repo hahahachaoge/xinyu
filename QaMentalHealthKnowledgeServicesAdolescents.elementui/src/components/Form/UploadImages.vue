@@ -1,7 +1,7 @@
 <template>
     <div class="upload-files-wrap">
         <!-- 图片上传组件 -->
-        <el-upload :action="uploadUrl" list-type="picture-card" :show-file-list="true" :on-success="handleUploadSuccess"
+        <el-upload :action="uploadUrl" :headers="uploadHeaders" list-type="picture-card" :show-file-list="true" :on-success="handleUploadSuccess"
             :on-remove="handleRemove" :on-preview="handlePreview" :file-list="fileList"
             accept=".jpg,.png,.jpeg,.jfif,.webp" :limit="limit" :multiple="limit > 1">
             <el-icon>
@@ -16,8 +16,11 @@
 
 <script setup>
 import { Plus } from '@element-plus/icons-vue';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { post } from '@/api/http';
+import { useCommonStore } from '@/store';
+const commonStore = useCommonStore();
+const uploadHeaders = computed(() => ({ Authorization: commonStore.token || '' }));
 // 定义props
 const props = defineProps({
     modelValue: {

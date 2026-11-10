@@ -105,7 +105,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
             // 查询出关联的SysUser表信息
             SysUser publisher = sysUserMapper.selectById(item.getPublisherId());
-            item.setPublisherDto(publisher != null ? publisher.mapToDto() : new SysUserDto());
+            item.setPublisherDto(publisher != null ? publisher.mapToPublicDto() : new SysUserDto());
 
             // 查询出关联的ArticleType表信息
             ArticleType articleType = articleTypeMapper.selectById(item.getArticleTypeId());

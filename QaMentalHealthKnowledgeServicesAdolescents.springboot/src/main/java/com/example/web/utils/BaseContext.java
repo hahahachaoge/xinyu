@@ -24,6 +24,8 @@ public class BaseContext {
         return threadLocal.get();
     }
 
+    public static void clear() { threadLocal.remove(); }
+
     private static ApplicationContext _applicationContext;
 
     public static void setApplicationContext(ApplicationContext applicationContext) {

@@ -1,7 +1,7 @@
 <template>
     <div class="upload-video-container">
         <!-- 上传区域 -->
-        <el-upload :action="uploadUrl" :file-list="fileList" :on-success="handleUploadSuccess" :on-remove="handleRemove"
+        <el-upload :action="uploadUrl" :headers="uploadHeaders" :file-list="fileList" :on-success="handleUploadSuccess" :on-remove="handleRemove"
             :before-upload="beforeUpload" :on-exceed="handleExceed" :on-error="handleError" :limit="limit"
             :multiple="multiple" :accept="accept" class="video-uploader">
             <!-- 上传按钮 -->
@@ -66,8 +66,11 @@
 <script setup>
 import { Delete, Upload, VideoPlay, View } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { post } from '@/api/http';
+import { useCommonStore } from '@/store';
+const commonStore = useCommonStore();
+const uploadHeaders = computed(() => ({ Authorization: commonStore.token || '' }));
 // 定义props
 const props = defineProps({
     modelValue: {

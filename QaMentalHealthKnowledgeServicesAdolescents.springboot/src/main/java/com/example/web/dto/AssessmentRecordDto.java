@@ -32,6 +32,8 @@ public class AssessmentRecordDto extends BaseDto
  
     private String resultLabel;// 结果标签
  
+    private String suggestion;
+
     private String resultInterpretation;// 结果解读
  
     private String answerJson;// 作答详情JSON

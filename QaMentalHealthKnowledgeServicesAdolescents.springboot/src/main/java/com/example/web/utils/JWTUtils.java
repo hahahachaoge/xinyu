@@ -12,6 +12,15 @@ import com.auth0.jwt.interfaces.DecodedJWT;
  * jwt的公共方法
  */
 public class JWTUtils {
+    public static final String CREDENTIAL_CLAIM = "credentialVersion";
+
+    @lombok.SneakyThrows
+    public static String credentialVersion(String encodedPassword) {
+        javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
+        mac.init(new javax.crypto.spec.SecretKeySpec(signingKey().getBytes(java.nio.charset.StandardCharsets.UTF_8), "HmacSHA256"));
+        return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(
+                mac.doFinal(encodedPassword.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+    }
     /**
      * 签名，由于生成token和解签时都需要使用sign，所以作为成员变量。
      */
@@ -30,7 +39,7 @@ public class JWTUtils {
      */
     public static String getToken(Map<String, String> map) {
         Calendar instance = Calendar.getInstance();
-        instance.add(Calendar.DATE, 180); // 默认180天过期
+        instance.add(Calendar.HOUR, 8);
 
         // 创建 JWTBuilder
         JWTCreator.Builder builder = JWT.create();

@@ -1,5 +1,5 @@
 <template>
-    <el-button class="margin-left-xs" type="success" size="mini" @click="handleExport">
+    <el-button class="margin-left-xs" type="success" size="mini" @click="handleExport" :loading="exporting">
         <el-icon>
             <Download />
         </el-icon>导 出
@@ -9,6 +9,9 @@
 <script setup>
 import { Download } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
+import { ref } from 'vue';
+import service from '@/utils/axios';
+const exporting = ref(false);
 
 // 定义props
 const props = defineProps({
@@ -23,32 +26,28 @@ const props = defineProps({
 });
 
 // 处理导出
-const handleExport = () => {
+const handleExport = async () => {
+    if (exporting.value) return;
+    exporting.value = true;
     try {
-
-        const query = JSON.stringify(props.where)
-        // 构建完整的导出URL
-        const exportUrl = `${import.meta.env.VITE_API_BASE_URL}${props.exportUrl}?query=${query}`;
-
-        // 创建隐藏的下载链接
+        const response = await service.get(props.exportUrl, {
+            params: { query: JSON.stringify(props.where) }, responseType: 'blob'
+        });
+        if (response.headers['content-type']?.includes('application/json')) {
+            const result = JSON.parse(await response.data.text());
+            throw new Error(result.msg || '导出失败');
+        }
+        const url = URL.createObjectURL(response.data);
         const link = document.createElement('a');
-        link.href = exportUrl;
-        link.download = '';
-        link.style.display = 'none';
-
-        // 添加到DOM并触发下载
-        document.body.appendChild(link);
-        link.click();
-
-        // 清理
-        document.body.removeChild(link);
-
+        link.href = url; link.download = '数据导出.xls'; link.style.display = 'none';
+        document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
         ElMessage.success('导出成功');
     } catch (error) {
-        console.error('导出失败:', error);
-        ElMessage.error('导出失败');
-    }
+        ElMessage.error(error.message || '导出失败');
+    } finally { exporting.value = false; }
 };
+
 </script>
 
 <style scoped></style>

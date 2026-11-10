@@ -29,6 +29,7 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response) => {
+    if (response.config.responseType === "blob") return response;
     const res = response.data;
     const { success, code, msg } = res;
     if (success == true) {
@@ -54,6 +55,13 @@ service.interceptors.response.use(
     }
   },
   (error) => {
+    const status = error.response?.status;
+    if (status === 401) useCommonStore().logout();
+    if (status === 400 || status === 401 || status === 403 || status === 405) {
+      const message = error.response?.data?.msg || (status === 401 ? "请重新登录" : "没有操作权限");
+      ElMessage.error(message);
+      return Promise.reject(new Error(message));
+    }
     // 处理网络错误
     if (error.message.indexOf("Network Error") !== -1) {
       ElMessage({

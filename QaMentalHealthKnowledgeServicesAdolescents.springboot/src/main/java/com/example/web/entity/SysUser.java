@@ -17,6 +17,7 @@ public class SysUser extends BaseEntity {
 
     private String userName;// 账号
 
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
     private String passWord;// 密码
 
     private String email;// 邮箱
@@ -29,6 +30,14 @@ public class SysUser extends BaseEntity {
 
 
     private Integer roleType;// 账号角色
+
+    public SysUserDto mapToPublicDto() {
+        SysUserDto dto = new SysUserDto();
+        dto.setId(getId());
+        dto.setNickName(nickName == null || nickName.isBlank() ? "用户" + getId() : nickName);
+        dto.setImageUrls(imageUrls);
+        return dto;
+    }
     /**
      * 把账号实体转换成账号传输模型
      */

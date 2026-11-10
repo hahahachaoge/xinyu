@@ -71,8 +71,8 @@
                                 <span class="answer-title">{{ item.questionTitle }}</span>
                             </div>
                             <div class="answer-options">
-                                <span class="answer-option" v-for="opt in item.options" :key="opt.label"
-                                    :class="{ selected: opt.score === item.selectedScore }">
+                                <span class="answer-option" v-for="(opt, optionIndex) in item.options" :key="opt.label"
+                                    :class="{ selected: item.optionIndex != null ? optionIndex === item.optionIndex : opt.score === item.selectedScore }">
                                     {{ opt.label }}（{{ opt.score }}分）
                                 </span>
                             </div>
@@ -197,7 +197,8 @@ const showDetail = async (row) => {
                 return {
                     questionTitle: q.questionTitle,
                     options,
-                    selectedScore: answer ? answer.selectedScore : null
+                    selectedScore: answer ? answer.selectedScore : null,
+                    optionIndex: answer?.optionIndex ?? null
                 };
             });
         }

@@ -100,3 +100,5 @@ mvn.cmd test "-Dmaven.repo.local=.maven-repository"
 AI 回答和测评结果仅供知识参考和自我了解，不替代专业诊断与治疗。
 
 JWT_SECRET 请使用随机生成的长字符串。SQL 不提供账户密码，请自行注册或配置开发账户。
+
+权限、后端计分、首次管理员设置及后续上线顺序见 [上线第 1 步](docs/deployment-step-1.md)。更新后需要重启后端并重新登录，前后端应同时更新。

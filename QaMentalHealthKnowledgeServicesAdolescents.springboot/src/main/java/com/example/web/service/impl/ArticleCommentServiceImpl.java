@@ -88,16 +88,20 @@ public class ArticleCommentServiceImpl extends ServiceImpl<ArticleCommentMapper,
 
             // 查询出关联的SysUser表信息
             SysUser user = sysUserMapper.selectById(item.getUserId());
-            item.setUserDto(user != null ? user.mapToDto() : new SysUserDto());
+            item.setUserDto(publicProfile(user));
 
             // 查询出回复目标用户信息
             if (item.getReplyToUserId() != null) {
                 SysUser replyToUser = sysUserMapper.selectById(item.getReplyToUserId());
-                item.setReplyToUserDto(replyToUser != null ? replyToUser.mapToDto() : new SysUserDto());
+                item.setReplyToUserDto(publicProfile(replyToUser));
             }
         }
 
         return items;
+    }
+
+    private SysUserDto publicProfile(SysUser user) {
+        return user == null ? new SysUserDto() : user.mapToPublicDto();
     }
 
     /**
@@ -153,7 +157,25 @@ public class ArticleCommentServiceImpl extends ServiceImpl<ArticleCommentMapper,
     @Override
     public ArticleCommentDto addOrEdit(ArticleCommentDto input) {
         // 声明一个文章评论实体
-        ArticleComment articleComment = input.mapToEntity();
+        Integer userId = AccessControl.requireUser().getUserId();
+        ArticleComment articleComment;
+        if (!input.isAdd()) {
+            articleComment = articleCommentMapper.selectById(input.getId());
+            if (articleComment == null) throw new CustomException("评论不存在");
+            AccessControl.requireOwner(articleComment.getUserId());
+            articleComment.setCommentContent(input.getCommentContent());
+        } else {
+            articleComment = input.mapToEntity();
+            articleComment.setUserId(userId);
+            articleComment.setCreationTime(java.time.LocalDateTime.now());
+            if (articleMapper.selectById(input.getArticleId()) == null) throw new CustomException("文章不存在");
+            if (input.getParentId() != null && input.getParentId() != 0) {
+                ArticleComment parent = articleCommentMapper.selectById(input.getParentId());
+                if (parent == null || !parent.getArticleId().equals(input.getArticleId()))
+                    throw new CustomException("回复的评论不存在或不属于该文章");
+                articleComment.setReplyToUserId(parent.getUserId());
+            } else articleComment.setReplyToUserId(null);
+        }
         // 调用数据库的增加或者修改方法
         saveOrUpdate(articleComment);
         // 把传输模型返回给前端
@@ -166,6 +188,8 @@ public class ArticleCommentServiceImpl extends ServiceImpl<ArticleCommentMapper,
     @Override
     public void deleteById(IdInput input) {
         ArticleComment entity = articleCommentMapper.selectById(input.getId());
+        if (entity == null) return;
+        AccessControl.requireOwner(entity.getUserId());
         articleCommentMapper.deleteById(entity);
     }
 
