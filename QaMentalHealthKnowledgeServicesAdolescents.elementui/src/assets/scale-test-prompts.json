@@ -1,0 +1,13 @@
+{
+  "generator": "Built-in image_gen.imagegen",
+  "assets": [
+    {
+      "file": "test-lake-banner.png",
+      "prompt": "Use case illustration-story. Asset panoramic website header background landscape 4:1. A serene blue mountain lake with faint white village across water, luminous soft blue sky and distant mountains. RIGHT HALF: sunlit cream wooden desk beside open window, a closed dark blue notebook with tiny botanical silver motif, blue floral porcelain cup of tea, dark blue pen, vase of white jasmine and lilac flowers, sheer curtains. LEFT half mostly airy pale blue mist over lake with very low contrast, empty space for HTML heading. Exquisite detailed soft anime painterly illustration, calming ivory powder blue lavender sage palette, gentle natural daylight. No people, no text, no UI, no watermark."
+    },
+    {
+      "file": "test-writing-companion.png",
+      "prompt": "Use case illustration-story. Asset portrait 4:5 illustration for a youth wellbeing self-assessment website sidebar. East Asian teenage girl with loosely tied dark hair bun in soft lavender cardigan over ivory blouse, sitting at bright window-side wooden desk and writing carefully in an open notebook with blue pen. Natural gentle face looking down, calm focused expression. Girl centered upper middle, full head visible. Delicate jasmine and white daisies and lilac flowers framing left and right foreground, blue floral ceramic mug, pale blue hardcover books, sheer white curtain and blue mountains visible outside. Bottom 15 percent softly fades to ivory white with little empty space for real HTML handwritten caption. Richly detailed luminous soft anime painterly style, ivory powder blue lavender sage palette. No text, no lettering, no UI or watermarks."
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+# Dependencies, build output, and local caches
+node_modules/
+dist/
+target/
+.maven-repository/
+.npm-cache/
+coverage/
+
+# Local credentials; only safe templates and public frontend URLs are committed
+.env
+.env.*
+!.env.example
+!.env.development
+!.env.production
+*.pem
+*.key
+
+# Logs and editor metadata
+*.log
+*.log.*
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.iml
+
+
+.local/

@@ -1,0 +1,17 @@
+{
+  "generator": "Built-in image_gen.imagegen",
+  "assets": [
+    {
+      "file": "article-detail-writing.png",
+      "prompt": "Use case illustration-story. Asset wide landscape 2.1:1 main article cover for a Chinese adolescent wellbeing website. East Asian teenage girl with loosely tied bun and natural gentle face, wearing lavender cardigan over ivory shirt, sitting at sunlit desk by large bright window writing with pen in an open notebook, concentrated and peaceful. Girl is on LEFT CENTER, visible waist up. Blue floral porcelain mug on desk to right, stack of books, white jasmine and lavender daisies in vase, sheer white curtain. Blue mountains and lakeside village through windows. Richly detailed luminous soft anime painterly illustration, soothing powder blue lavender sage ivory palette. Fill whole landscape, no empty negative space, entire girl's head visible. No text, no typography, no UI or watermark."
+    },
+    {
+      "file": "article-detail-companion.png",
+      "prompt": "Use case illustration-story. Asset portrait ratio 4:5 background illustration for a wellbeing article sidebar card. Delicate richly detailed anime painterly still life. A closed dark blue book with a small blank ivory notebook diagonally laid over it on a sunlit cream table in LOWER HALF, blue floral porcelain vase with small white jasmine and pale lilac flowers on UPPER RIGHT. Sheer curtain and window light, lavender petals and small flower sprigs lower left. UPPER LEFT half has pale lavender empty negative space for real HTML title and button. Soft serene ivory lavender powder blue and sage palette. Subtle paper textures, natural warm sunlight, calm hopeful atmosphere. No lettering or text anywhere, no UI, no watermark."
+    },
+    {
+      "file": "article-detail-landscape.png",
+      "prompt": "Use case illustration-story. Asset a softly painted scenic website page background, landscape 1.6:1. Pale blue serene alpine lake, distant layered blue watercolor mountains, tiny lakeside village and pine forest along the far banks. Delicate white jasmine and lilac flowers and sage branches framing only the far LEFT and RIGHT edges and upper corners, center 75 percent mostly very pale ivory mist and faint lake reflections, suitable behind white article cards. Soft luminous daylight, low contrast powder blue ivory lavender palette, gentle anime painterly natural scenery. No people, no text, no UI, no watermark. Fine graceful botanical framing, ample unobstructed nearly white center."
+    }
+  ]
+}

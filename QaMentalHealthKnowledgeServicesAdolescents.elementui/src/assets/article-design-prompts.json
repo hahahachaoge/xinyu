@@ -1,0 +1,21 @@
+{
+  "generator": "Built-in image_gen.imagegen",
+  "assets": [
+    {
+      "file": "article-reading-hero.png",
+      "prompt": "Use case illustration-story. Asset: panoramic hero background for a Chinese adolescent wellbeing article library website, landscape ratio 3.6:1. Detailed luminous soft anime painterly illustration matching a premium gentle editorial website. RIGHT HALF: East Asian teenage girl with hair in loose bun wearing soft lavender knit cardigan over white shirt, sitting at desk beside a large bright open window, holding and reading an open book with chin resting on one hand. Blue and white porcelain mug, books, tiny jasmine daisies and pale lilac hydrangeas on desk, wall has small botanical sketches. Distant blue mountains through window. LEFT 45 percent: nearly white pale powder blue airy empty negative space with faint mountains low at bottom left, no people or objects or text. Soft sunlit ivory and lavender, periwinkle shadows, sage leaves. The girl's head fully visible with generous space above. No letters, no typography, no UI, no watermarks."
+    },
+    {
+      "file": "article-family-conversation.png",
+      "prompt": "Use case illustration-story. Website article card illustration wide landscape 1.85:1, detailed soft luminous anime painterly image. An East Asian mother in soft lavender cardigan and her teenage daughter in cream school sweater sitting at a sunlit wooden table with tea mugs, talking gently, daughter looks up with relaxed smile and mother listens. Cozy ivory room with large windows and flowers, jasmine and blue hydrangeas framing edge, subtle distant blue mountains outside. Medium shot from waist up, faces natural warm and caring, reassuring nonclinical atmosphere. Powder blue lavender ivory and sage palette. No text, no typography, no UI, no watermark."
+    },
+    {
+      "file": "article-self-growth.png",
+      "prompt": "Use case illustration-story. Landscape 1.85:1 website article cover. East Asian teenage girl with long straight black hair wearing modest white and blue school uniform, backpack, gently holding a notebook against her chest, standing at an open window in a flowering school corridor and looking toward sunlight with calm hopeful expression. Jasmine flowers frame left, blue mountains and green garden in background. Richly detailed soft anime painterly illustration, natural gentle face, waist up composition, luminous daylight, ivory powder blue lavender and sage palette. No text, no UI, no watermark, no lettering."
+    },
+    {
+      "file": "article-botanical-landscape.png",
+      "prompt": "Use case illustration-story. Asset: very wide panoramic decorative footer background for a serene wellbeing website, ratio 4:1. Mostly white ivory luminous empty space across the center and upper half for HTML text. Layers of misty pale powder blue watercolor mountains along the bottom edge and right edge. At lower LEFT a small elegant stack of ivory books with a spray of tiny white jasmine and lilac flowers, sage leaves, gracefully tapered botanical branches at lower RIGHT. A few tiny translucent lavender petals floating softly near right. Delicate fine hand painted illustration, gentle daylight, airy pale blues and lavender, low contrast, white seamless top edge, NO text, no lettering, no UI or logos."
+    }
+  ]
+}

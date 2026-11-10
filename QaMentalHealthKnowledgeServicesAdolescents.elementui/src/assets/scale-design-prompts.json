@@ -1,0 +1,17 @@
+{
+  "generator": "Built-in image_gen.imagegen",
+  "assets": [
+    {
+      "file": "scale-writing-hero.png",
+      "prompt": "Use case illustration-story. Asset panoramic hero illustration for a Chinese adolescent wellbeing self-assessment selection page, wide 3.3:1. Detailed soft luminous anime painterly style, ivory and powder blue lavender palette. RIGHT HALF a thoughtful East Asian teenage girl with messy bun wearing soft light blue cardigan, sitting at a bright window-side desk and writing with a blue pen in a dark blue notebook. Her face fully visible, gently concentrating, modest school clothes. Blue floral ceramic mug, stack of books and tiny white jasmine flowers on table. Sheer white curtain and delicate white and lavender flowers on right, distant misty blue mountains and village seen outside. LEFT 44 percent pale nearly white powder blue empty negative space with very faint soft mountains at bottom, suitable for HTML heading, no subjects on left. Relaxed reassuring uplifting mood, natural sunlight, generous space above head. No text, no letters, no UI, no watermark."
+    },
+    {
+      "file": "scale-reflection.png",
+      "prompt": "Use case illustration-story. Asset: very wide landscape 2.8:1 cover for a youth emotional self-reflection questionnaire. A relaxed thoughtful East Asian teenage girl with long dark hair in light lavender sweater, resting chin on folded arms on a blue cushion beside a bright open window. She looks gently toward the sky with calm expression. A closed blue notebook, ivory books, tiny white jasmine blossoms, sheer curtains. Distant blue mountains and flowering garden outdoors. Detailed soft luminous anime painterly illustration, gentle natural sunlight, reassuring calm atmosphere, soft ivory powder blue lavender and sage palette. Girl face is centered, full head visible. No text, no UI, no lettering or watermark."
+    },
+    {
+      "file": "scale-reminder.png",
+      "prompt": "Use case illustration-story. Asset wide 3.8:1 background illustration for a calm youth wellbeing reminder banner. A beautiful blue glass hourglass with white sand, closed pale blue hardcover book, dark blue pen, and blue porcelain vase of tiny white jasmine and lilac flowers on pale sunlit tabletop. All objects on RIGHT 55 percent. LEFT 45 percent almost empty pale lavender and ivory seamless negative space for HTML text. Softly textured white wall and window light in background, little sage foliage. Delicate richly detailed anime painterly still life, soothing airy blue-lavender palette, warm natural sunlight, serene thoughtful atmosphere. No text, no letters, no watermark, no UI."
+    }
+  ]
+}

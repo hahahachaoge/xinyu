@@ -1,0 +1,96 @@
+.front-layout.unified-front {
+    --el-color-primary: #6483df;
+    --el-color-primary-light-3: #92a9e9;
+    --el-color-primary-light-5: #b2c3f0;
+    --el-color-primary-light-7: #d0dcf7;
+    --el-color-primary-light-8: #e0e8fb;
+    --el-color-primary-light-9: #f0f4ff;
+    --el-color-primary-dark-2: #4d6dc4;
+    --el-text-color-primary: #203e76;
+    --el-text-color-regular: #52699a;
+    --el-text-color-secondary: #8191b1;
+    --el-border-color: #dbe4f5;
+    --el-border-color-light: #e5ebf8;
+    --el-border-color-lighter: #eef2fb;
+    --el-fill-color-light: #f4f7ff;
+    --el-bg-color-page: #f8faff;
+    background: #f8faff;
+    color: #52699a;
+
+    &:not(.home-design-layout):not(.article-design-layout) {
+        background: linear-gradient(#f7faffee, #f8fafffa 700px), url('@/assets/article-botanical-landscape.png') center top / 100% auto no-repeat;
+    }
+    .front-header { background: #f8fbfff2; border-bottom: 1px solid #e0e7f7; }
+    .header-container { gap: 20px; }
+    .menu-section { position: static; transform: none; gap: 8px; margin-left: auto; }
+    .menu-item { color: #52699a; white-space: nowrap; }
+    .menu-item:hover, .menu-item.active { color: #456ac7; }
+    .menu-item::before { background: #6483df; }
+    .right-section { flex-shrink: 0; }
+    .personal-navigation a:hover, .personal-navigation a.is-active { color: #456ac7; border-bottom-color: #6483df; }
+    .personal-navigation a.router-link-active:not(.is-active) { border-bottom-color: transparent; }
+    .main-container { min-height: calc(100vh - 280px); }
+    .el-button--primary:not(.is-plain) { --el-button-disabled-bg-color: #b5c5ee; --el-button-disabled-border-color: #b5c5ee; }
+    .el-button { border-radius: 10px; }
+    .el-input__wrapper { min-height: 40px; background: #fcfdff; }
+    .el-textarea__inner { padding: 14px; background: #fcfdff; }
+    .el-card { border: 1px solid #e1e8f7; border-radius: 20px; box-shadow: 0 8px 30px #34538d05; }
+    .el-card__header { padding: 26px 32px; border-color: #edf0f9; }
+    .el-card__body { padding: 30px 32px; }
+    .el-card h2 { color: #203e76; font-size: 22px; font-weight: 600; }
+    .form-description { margin: 9px 0 0; font-size: 13px; color: #8191b1; }
+    .personal-page .el-form { max-width: 700px; }
+    .personal-page .el-form-item { margin-bottom: 26px; }
+    .personal-page .el-form-item__label { color: #52699a; line-height: 42px; }
+    .personal-page .el-button--primary { min-height: 42px; padding: 0 25px; }
+    .personal-page .button-container { justify-content: flex-start; margin-left: 80px; }
+    .personal-page .my-records { padding: 30px; min-height: 360px; }
+    .personal-page .records-header { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e9eef9; }
+    .personal-page .records-header h3 { font-size: 22px; color: #203e76; }
+    .personal-page .record-item { padding: 22px 14px; border-color: #edf1fa; border-radius: 12px; gap: 18px; }
+    .personal-page .record-item:hover { background: #f6f8ff; }
+    .personal-page .record-icon { width: 48px; height: 48px; border-radius: 14px; }
+    .personal-page .record-info { min-width: 0; flex: 1; }
+    .personal-page .record-info h4 { font-size: 16px; line-height: 1.7; }
+    .personal-page .record-info p { font-size: 12px; margin-top: 5px; line-height: 1.7; }
+    .personal-page .empty-tip { padding: 60px 20px 34px; background: linear-gradient(135deg, #f3f6ff, #f7f2ff); }
+    .personal-page .empty-tip::before { content: '✧'; display: block; width: 64px; height: 64px; line-height: 64px; border-radius: 50%; margin: 0 auto 20px; font-size: 32px; color: #8096d8; background: #e6ecfd; }
+    .empty-tip a { display: inline-block; color: #5476cf; margin-top: 18px; text-decoration: none; font-size: 13px; }
+
+    .scale-list-page .scale-grid { gap: 20px; }
+    .scale-list-page .scale-card { padding: 22px; gap: 28px; transition: border-color .2s, box-shadow .2s; }
+    .scale-list-page .scale-card:hover { border-color: #b7c7ee; box-shadow: 0 8px 28px #5776be0c; }
+    .scale-list-page .scale-cover { width: 230px; height: 145px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
+    .scale-list-page .scale-info h3 { font: 600 23px/1.5 'SimSun', serif; color: #203e76; }
+    .scale-list-page .scale-desc { margin: 10px 0 15px; line-height: 1.9; color: #7486ac; }
+    .scale-list-page .scale-tag { background: #eef1ff; color: #667faf; padding: 5px 12px; }
+    .scale-list-page .scale-card > .el-button { padding: 20px 24px; }
+
+    .assessment-detail-page .section-card { background: #fff; }
+
+}
+
+@media(max-width: 1200px) {
+    .front-layout.unified-front .chat-brand-subtitle { display: none; }
+    .front-layout.unified-front .menu-section { gap: 4px; }
+    .front-layout.unified-front .scale-list-page .scale-cover { width: 180px; height: 135px; }
+}
+@media(max-width: 900px) {
+}
+@media(max-width: 760px) {
+    .front-layout.unified-front {
+        .header-container { gap: 10px; }
+        .menu-section { margin-left: 0; justify-content: space-between; }
+        .main-container { padding-top: 18px !important; }
+        .el-card__header, .el-card__body, .personal-page .my-records { padding: 22px 18px; }
+        .personal-page .record-item { padding: 18px 4px; }
+        .personal-page .record-info { flex-basis: 60%; }
+        .scale-list-page .scale-card { gap: 16px; padding: 16px; }
+        .scale-list-page .scale-cover { width: 100%; height: 180px; }
+        .scale-list-page .scale-info h3 { font-size: 21px; }
+        .scale-list-page .scale-card > .el-button { margin-left: auto; }
+    }
+}
+@media(prefers-reduced-motion: reduce) {
+    .front-layout.unified-front .scale-card { transition: none; }
+}

@@ -1,0 +1,13 @@
+/* 青少年心理健康知识服务平台 - 主题色配置 */
+/* 主色调：温暖的蓝绿色系，传递安全、信任、专业感 */
+$--colors: (
+  'primary': ('base': #5B9BD5),
+  'success': ('base': #6BBF73),
+  'warning': ('base': #F0A75B),
+  'danger': ('base': #E8726D),
+  'error': ('base': #D94F4F),
+  'info': ('base': #8C9BAB),
+);
+
+@forward 'element-plus/theme-chalk/src/common/var.scss' with ($colors: $--colors);
+@use "element-plus/theme-chalk/src/index.scss" as *;

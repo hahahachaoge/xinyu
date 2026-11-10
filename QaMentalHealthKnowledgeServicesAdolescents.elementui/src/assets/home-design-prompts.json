@@ -1,0 +1,27 @@
+{
+  "generator": "Built-in image_gen.imagegen",
+  "purpose": "Assets for the user-supplied 心屿 homepage design",
+  "assets": [
+    {
+      "file": "home-garden-hero.png",
+      "prompt": "Use case: illustration-story. Asset: high quality website homepage hero background. Wide landscape 2.4:1 composition. Luminous richly detailed soft anime painting, delicate realistic textures, powder blue lavender sage green ivory palette. On the RIGHT HALF only, a smiling East Asian teenage boy in ivory hoodie and backpack and a smiling East Asian teenage girl in lilac sweater sitting in a white stone garden terrace, boy holding an open muted green book, looking at each other. Their faces and upper bodies on right 55 percent, visible from knees upward. Framing jasmine blossoms and blue hydrangeas bottom and top right, cream sheer curtain on upper right, blue mountains and lakeside Mediterranean village distant background. LEFT 45 PERCENT is almost white very pale blue soft luminous negative space with faint draping translucent fabric, no objects or people on left, will hold real HTML text. Gentle midday sunlight, uplifting quiet friendship. Bottom left white, softly feathered edges. No text, typography, UI, logo, borders or watermarks."
+    },
+    {
+      "file": "home-topic-emotion.png",
+      "prompt": "Use case stylized-concept. Website topic card background for emotions and stress, wide landscape 2:1 composition. Exquisite calm dreamy 3D and painterly mixed illustration of pale blue silk ribbons flowing like a gentle river amongst smooth polished white pebbles, tiny white jasmine flowers, translucent leaves. Objects concentrated in RIGHT two thirds, LEFT third pale powder blue empty luminous negative space to overlay HTML text. Color palette icy blue, periwinkle, sage leaves, ivory. Soft natural daylight, delicate textures, reassuring calm. No lettering, text, watermark, icons or UI."
+    },
+    {
+      "file": "home-topic-connection.png",
+      "prompt": "Use case stylized-concept. Premium wellbeing website topic card background about interpersonal communication. Wide landscape 2:1. Two intertwined softly translucent lavender glass sculptural loops evoking dialogue, airy silk ribbons, tiny white jasmine flowers and muted green foliage on RIGHT two thirds. LEFT third nearly empty pale lilac luminous space to overlay text. Delicate soft sunlit 3D and painterly mixed illustration, dreamy pearly materials, pastel lavender and ivory with subtle powder blue shadows. Match premium adolescent emotional wellbeing illustration. No text, no icons, no letters, no watermark, no border or UI."
+    },
+    {
+      "file": "home-topic-self.png",
+      "prompt": "Use case stylized-concept. Wide landscape 2:1 topic card image for self-awareness, exquisite soft dreamy painterly 3D illustration. Oval freestanding mirror on RIGHT reflecting a bright pale blue sky and a little white flower, smooth stacked white and lilac pebbles, fine graceful sage plant stem and delicate jasmine flowers, translucent pale pink fabric. LEFT third empty pale blush and ivory negative space, for HTML text overlay. Soft warm sunlight, premium serene delicate aesthetic, palette blush pink, lavender, ivory and sage. No text, no UI, no watermark, no letters."
+    },
+    {
+      "file": "home-friends-walking.png",
+      "prompt": "Use case illustration-story. Landscape 2:1 article cover illustration. Detailed luminous soft anime painterly style. Back view of two East Asian teenage friends, a boy with backpack and a girl with long dark hair in modest white and powder blue everyday school clothes, walking together on a sunlit tree-lined school path, shoulders relaxed, listening to one another. White jasmine blossoms and blue hydrangea at the edges, leafy canopy with warm dappled sunlight, pale blue school buildings in distance. Calm trusting hopeful mood, palette ivory, sage green, powder blue, periwinkle. Composition subjects centered to right with a little space around them. No text, no UI, no logos, no watermark."
+    }
+  ],
+  "reused_assets": ["chat-calm-corner.png", "wellbeing-reading.png"]
+}
