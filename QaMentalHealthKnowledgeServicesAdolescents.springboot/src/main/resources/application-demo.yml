@@ -1,0 +1,4 @@
+# Public judging credentials. Activate explicitly with the demo profile.
+demo:
+  accounts:
+    password: ${DEMO_ACCOUNT_PASSWORD:12345678}

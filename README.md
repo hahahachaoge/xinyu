@@ -4,6 +4,21 @@
 
 AI 问答使用 DeepSeek；知识库通过 LangChain4j 调用嵌入模型，并使用 PostgreSQL 的 pgvector 扩展存储向量。业务数据存储在 MySQL 中。
 
+## 评委演示账号
+
+完成下文的环境配置和数据库初始化后，在后端目录用 CMD 启动演示模式：
+
+```cmd
+mvn.cmd spring-boot:run "-Dmaven.repo.local=.maven-repository" "-Dspring-boot.run.profiles=demo"
+```
+
+| 登录账号 | 登录密码 | 登录角色 |
+| --- | --- | --- |
+| `user` | `12345678` | 用户 |
+| `admin` | `12345678` | 管理员 |
+
+演示模式自动创建这两个账号，重启保留账号 ID 与已有业务数据，并确保密码及角色与上表一致，无需手动注册或执行管理员 SQL。生产部署不启用 `demo` 配置；数据库密码、JWT 密钥和 AI Key 仍由评委或部署者自行配置，不随演示账号公开。详见 [评委运行说明](docs/judging-demo.md)。
+
 ## 项目目录
 
 ```text
@@ -99,6 +114,6 @@ mvn.cmd test "-Dmaven.repo.local=.maven-repository"
 
 AI 回答和测评结果仅供知识参考和自我了解，不替代专业诊断与治疗。
 
-JWT_SECRET 请使用随机生成的长字符串。SQL 不提供账户密码，请自行注册或配置开发账户。
+JWT_SECRET 请使用随机生成的长字符串。SQL 不提供账户密码；普通模式需自行注册，评审演示模式自动设置本文列出的两个固定账号。
 
 权限、后端计分、首次管理员设置及后续上线顺序见 [上线第 1 步](docs/deployment-step-1.md)。更新后需要重启后端并重新登录，前后端应同时更新。
