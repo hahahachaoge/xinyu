@@ -63,6 +63,8 @@
                                     片段 #{{ cid }}
                                 </span>
                             </div>
+                            <p v-if="msg.senderRole === 2 && !msg.retrievedChunkIds" class="source-tags">本条回答未引用知识库资料</p>
+                            <p v-if="msg.retrievalMode === 'keyword'" class="source-tags">本次参考资料通过关键词检索获得</p>
                             <!-- 反馈按钮 -->
                             <div class="feedback-btns" v-if="msg.senderRole === 2 && msg.id">
                                 <span class="fb-btn" :class="{ 'fb-active': msg.feedback === 5 }" @click="submitFeedback(msg, 5)">
@@ -148,7 +150,8 @@ import calmIllustration from '@/assets/chat-calm-corner.png';
 import WellbeingIcon from '@/components/WellbeingIcon.vue';
 import { useCommonStore } from '@/store';
 import { ElMessage } from 'element-plus';
-import { computed, nextTick, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { consumeSseStream } from '@/utils/sse';
 import { useRoute, useRouter } from 'vue-router';
 
 const commonStore = useCommonStore();
@@ -186,6 +189,9 @@ const isStreaming = ref(false);
 const streamingContent = ref('');
 const streamingChunkIds = ref('');
 const sessionLoading = ref(false);
+const streamingMode = ref('');
+let streamController = null;
+let disposed = false;
 const chunkDialogShow = ref(false);
 const chunkDetail = ref(null);
 
@@ -194,7 +200,7 @@ const currentSession = computed(() => sessionList.value.find(s => s.id === curre
 // 格式化AI回复内容（换行处理）
 const formatContent = (content) => {
     if (!content) return '';
-    return content.replace(/\n/g, '<br/>');
+    return content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br/>');
 };
 
 // 滚动到底部
@@ -225,6 +231,8 @@ const loadHotQuestions = async () => {
 
 // 选择会话
 const selectSession = async (id) => {
+    if (isStreaming.value) return;
+    router.replace({ query: { ...route.query, sessionId: id } });
     currentSessionId.value = id;
     const { data, success } = await post('/aiChat/getMessages', { id });
     if (success && data) {
@@ -237,12 +245,14 @@ const selectSession = async (id) => {
 const newChat = () => {
     if (isStreaming.value) return;
     currentSessionId.value = null;
+    router.replace({ query: { ...route.query, sessionId: undefined } });
     messages.value = [];
     streamingContent.value = '';
 };
 
 // 删除会话
 const deleteSession = async (id) => {
+    if (isStreaming.value) return;
     const { success } = await post('/aiChat/deleteSession', { id });
     if (success) {
         sessionList.value = sessionList.value.filter(s => s.id !== id);
@@ -263,129 +273,45 @@ const askHotQuestion = (text) => {
 // 发送消息
 const sendMessage = async () => {
     if (!inputText.value.trim() || isStreaming.value) return;
-
-    // 检查登录
-    if (!commonStore.token) {
-        ElMessage.warning({ message: '请先登录', duration: 1500 });
-        router.push('/login');
-        return;
-    }
-
+    if (!commonStore.token) { ElMessage.warning('请先登录'); router.push('/login'); return; }
     const question = inputText.value.trim();
-    inputText.value = '';
-
-    // 如果没有当前会话，先创建
-    if (!currentSessionId.value) {
-        const { data, success } = await post('/aiChat/createSession', { question });
-        if (success && data) {
-            currentSessionId.value = data.id;
-            sessionList.value.unshift(data);
-        } else {
-            ElMessage.error({ message: '创建会话失败', duration: 1500 });
-            return;
-        }
-    }
-
-    // 添加用户消息到界面
-    messages.value.push({
-        id: 'user_' + Date.now(),
-        senderRole: 1,
-        messageContent: question,
-        retrievedChunkIds: null,
-        feedback: null
-    });
-    scrollToBottom();
-
-    // 流式请求AI回复
-    isStreaming.value = true;
-    streamingContent.value = '';
-    streamingChunkIds.value = '';
-
+    if (question.length > 2000) { ElMessage.warning('问题不能超过 2000 字'); return; }
+    isStreaming.value = true; inputText.value = ''; streamingContent.value = ''; streamingChunkIds.value = ''; streamingMode.value = '';
+    let savedMessageId = null, tokenUsage = null;
     try {
-        const baseURL = import.meta.env.VITE_API_BASE_URL || '';
-        const response = await fetch(baseURL + '/aiChat/chatStream', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': commonStore.token || ''
-            },
-            body: JSON.stringify({
-                sessionId: currentSessionId.value,
-                question: question
-            })
+        if (!currentSessionId.value) {
+            const { data, success } = await post('/aiChat/createSession', { question });
+            if (!success || !data?.id) throw new Error('创建会话失败');
+            currentSessionId.value = data.id; sessionList.value.unshift(data);
+            router.replace({ query: { ...route.query, sessionId: data.id } });
+        }
+        messages.value.push({ id: 'user_' + Date.now(), senderRole: 1, messageContent: question });
+        scrollToBottom();
+        streamController = new AbortController();
+        const response = await fetch((import.meta.env.VITE_API_BASE_URL || '') + '/aiChat/chatStream', {
+            method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: commonStore.token },
+            body: JSON.stringify({ sessionId: currentSessionId.value, question }), signal: streamController.signal
         });
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let savedMessageId = null;
-
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const text = decoder.decode(value, { stream: true });
-            const lines = text.split('\n');
-
-            for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                    const data = line.substring(6).trim();
-                    if (data === '[DONE]') continue;
-
-                    try {
-                        const parsed = JSON.parse(data);
-                        if (parsed.type === 'content') {
-                            streamingContent.value += parsed.content;
-                            scrollToBottom();
-                        } else if (parsed.type === 'chunks') {
-                            streamingChunkIds.value = parsed.chunkIds;
-                        } else if (parsed.type === 'saved') {
-                            savedMessageId = parsed.messageId;
-                        } else if (parsed.error) {
-                            ElMessage.error({ message: parsed.error, duration: 1500 });
-                        }
-                    } catch (e) {
-                        // 忽略解析错误
-                    }
-                }
+        if (response.status === 401) commonStore.logout();
+        await consumeSseStream(response, event => {
+            if (event.type === 'content') { streamingContent.value += event.content; scrollToBottom(); }
+            if (event.type === 'chunks') { streamingChunkIds.value = event.chunkIds; streamingMode.value = event.retrievalMode; }
+            if (event.type === 'saved') { savedMessageId = event.messageId; tokenUsage = event.tokenUsage; }
+        });
+        if (!savedMessageId || !streamingContent.value) throw new Error('回复未能保存，请重试');
+        messages.value.push({ id: savedMessageId, senderRole: 2, messageContent: streamingContent.value,
+            retrievedChunkIds: streamingChunkIds.value, tokenUsage, retrievalMode: streamingMode.value, feedback: null });
+    } catch (error) {
+        if (!disposed) {
+            ElMessage.error(error.message || '请求失败，请重试'); inputText.value = question;
+            if (currentSessionId.value) {
+                const result = await post('/aiChat/getMessages', { id: currentSessionId.value });
+                if (result.success) messages.value = result.data || [];
             }
-        }
-
-        // 流式结束，将内容添加到消息列表
-        if (streamingContent.value) {
-            messages.value.push({
-                id: savedMessageId || Date.now(),
-                senderRole: 2,
-                messageContent: streamingContent.value,
-                retrievedChunkIds: streamingChunkIds.value || null,
-                feedback: null
-            });
-        }
-
-    } catch (e) {
-        // 流式失败，回退到非流式
-        try {
-            const { data, success } = await post('/aiChat/chat', {
-                sessionId: currentSessionId.value,
-                question: question
-            });
-            if (success && data) {
-                messages.value.push({
-                    id: data.id,
-                    senderRole: 2,
-                    messageContent: data.messageContent,
-                    retrievedChunkIds: data.retrievedChunkIds,
-                    feedback: null
-                });
-            }
-        } catch (err) {
-            ElMessage.error({ message: '请求失败，请稍后重试', duration: 1500 });
         }
     } finally {
-        isStreaming.value = false;
-        streamingContent.value = '';
-        scrollToBottom();
-        // 刷新会话列表
-        loadSessions();
+        streamController = null; isStreaming.value = false; streamingContent.value = ''; streamingChunkIds.value = '';
+        if (!disposed) { scrollToBottom(); loadSessions(); }
     }
 };
 
@@ -416,15 +342,18 @@ const showChunkDetail = async (chunkId) => {
     const { data, success } = await post('/aiChat/getChunkDetails', { chunkIds: [Number(chunkId)] });
     if (success && data && data.length > 0) {
         chunkDetail.value = data[0];
-    }
+    } else { ElMessage.warning('来源片段不存在或已移除'); chunkDialogShow.value = false; }
 };
 
-onMounted(() => {
+onMounted(async () => {
     if (commonStore.token) {
-        loadSessions();
+        await loadSessions();
+        const id = Number(route.query.sessionId);
+        if (sessionList.value.some(s => s.id === id)) await selectSession(id);
     }
     loadHotQuestions();
 });
+onBeforeUnmount(() => { disposed = true; streamController?.abort(); });
 </script>
 
 <style scoped lang="scss">

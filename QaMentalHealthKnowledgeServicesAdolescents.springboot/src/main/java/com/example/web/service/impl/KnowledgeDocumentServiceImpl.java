@@ -192,6 +192,11 @@ public class KnowledgeDocumentServiceImpl extends ServiceImpl<KnowledgeDocumentM
      */
     @Override
     public void deleteById(IdInput input) {
+        var deleting = knowledgeDocumentMapper.selectById(input.getId());
+        if (deleting != null && Integer.valueOf(2).equals(deleting.getVectorStatusType()))
+            throw new CustomException("文档正在处理中，请稍后删除");
+        vectorService.removeVectors(documentChunkMapper.selectList(Wrappers.<DocumentChunk>lambdaQuery()
+            .eq(DocumentChunk::getKnowledgeDocumentId,input.getId())).stream().map(DocumentChunk::getVectorId).toList());
         // 先删除关联的文档分块
         documentChunkMapper.delete(Wrappers.<DocumentChunk>lambdaQuery()
                 .eq(DocumentChunk::getKnowledgeDocumentId, input.getId()));

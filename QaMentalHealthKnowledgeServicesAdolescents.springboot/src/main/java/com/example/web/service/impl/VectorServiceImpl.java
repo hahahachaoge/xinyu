@@ -1,153 +1,122 @@
 package com.example.web.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.example.web.entity.DocumentChunk;
-import com.example.web.entity.KnowledgeDocument;
+import com.example.web.entity.*;
 import com.example.web.enums.VectorStatusTypeEnum;
-import com.example.web.exception.CustomException;
-import com.example.web.mapper.DocumentChunkMapper;
-import com.example.web.mapper.KnowledgeDocumentMapper;
+import com.example.web.mapper.*;
 import com.example.web.service.VectorService;
 import dev.langchain4j.data.document.Document;
-import dev.langchain4j.data.document.DocumentParser;
+import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.document.parser.apache.tika.ApacheTikaDocumentParser;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
-import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingStore;
-import lombok.SneakyThrows;
+import java.io.*;
+import java.net.URI;
+import java.nio.file.*;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.URL;
-import java.time.LocalDateTime;
-import java.util.List;
-
-/**
- * 向量化服务实现类
- * 负责文档的文本分块与向量化处理
- */
-@Slf4j
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class VectorServiceImpl implements VectorService {
+    private final KnowledgeDocumentMapper knowledgeDocumentMapper;
+    private final DocumentChunkMapper documentChunkMapper;
+    private final EmbeddingModel embeddingModel;
+    private final EmbeddingStore<TextSegment> embeddingStore;
+    private final TransactionTemplate transactions;
+    private final Set<Integer> processing=ConcurrentHashMap.newKeySet();
+    private final java.util.concurrent.atomic.AtomicBoolean bulkRunning=new java.util.concurrent.atomic.AtomicBoolean();
 
-    @Autowired
-    private KnowledgeDocumentMapper knowledgeDocumentMapper;
-
-    @Autowired
-    private DocumentChunkMapper documentChunkMapper;
-
-    @Autowired
-    private EmbeddingModel embeddingModel;
-
-    @Autowired(required = false)
-    private EmbeddingStore<TextSegment> embeddingStore;
-
-    /**
-     * 异步执行文档向量化
-     */
     @Async
-    @Override
-    public void vectorizeDocument(Integer knowledgeDocumentId) {
-        KnowledgeDocument doc = knowledgeDocumentMapper.selectById(knowledgeDocumentId);
-        if (doc == null) {
-            log.error("知识文档不存在, id={}", knowledgeDocumentId);
-            return;
-        }
+    @Override public void vectorizeDocument(Integer id) {index(id,false);}
+    @Async
+    @Override public void rebuildVectors(Integer id) {index(id,true);}
 
+    @Async
+    @Override public void rebuildAllVectors() {
+        if(!bulkRunning.compareAndSet(false,true)) return;
         try {
-            // 1. 更新状态为处理中
-            doc.setVectorStatusType(VectorStatusTypeEnum.处理中.index());
-            knowledgeDocumentMapper.updateById(doc);
-
-            // 2. 删除旧的分块数据
-            documentChunkMapper.delete(Wrappers.<DocumentChunk>lambdaQuery()
-                    .eq(DocumentChunk::getKnowledgeDocumentId, knowledgeDocumentId));
-
-            // 3. 解析文档内容
-            String fileUrl = doc.getFileUrl();
-            if (fileUrl == null || fileUrl.isEmpty()) {
-                throw new CustomException("文件路径为空，无法向量化");
+            for(KnowledgeDocument doc:knowledgeDocumentMapper.selectList(null)) {
+                if(documentChunkMapper.selectCount(Wrappers.<DocumentChunk>lambdaQuery()
+                        .eq(DocumentChunk::getKnowledgeDocumentId,doc.getId()))>0) index(doc.getId(),true);
             }
-
-            Document document = parseDocument(fileUrl);
-
-            // 4. 文本分块（每块约300个字符，重叠30个字符）
-            List<TextSegment> segments = DocumentSplitters
-                    .recursive(300, 30)
-                    .split(document);
-
-            // 5. 逐块生成向量并存储
-            int chunkIndex = 0;
-            for (TextSegment segment : segments) {
-                chunkIndex++;
-                String content = segment.text();
-
-                // 生成向量嵌入
-                Embedding embedding = embeddingModel.embed(content).content();
-
-                // 存入向量数据库
-                String vectorId = null;
-                if (embeddingStore != null) {
-                    vectorId = embeddingStore.add(embedding, segment);
-                }
-
-                // 存入MySQL分块表
-                DocumentChunk chunk = new DocumentChunk();
-                chunk.setKnowledgeDocumentId(knowledgeDocumentId);
-                chunk.setChunkIndex(chunkIndex);
-                chunk.setChunkContent(content);
-                chunk.setTokenCount(content.length());
-                chunk.setVectorId(vectorId);
-                chunk.setCreationTime(LocalDateTime.now());
-                documentChunkMapper.insert(chunk);
-            }
-
-            // 6. 更新文档状态为已完成
-            doc.setChunkCount(chunkIndex);
-            doc.setVectorStatusType(VectorStatusTypeEnum.已完成.index());
-            doc.setVectorTime(LocalDateTime.now());
-            knowledgeDocumentMapper.updateById(doc);
-
-            log.info("文档向量化完成, id={}, 分块数={}", knowledgeDocumentId, chunkIndex);
-
-        } catch (Exception e) {
-            log.error("文档向量化失败, id={}", knowledgeDocumentId, e);
-            // 更新状态为失败
-            doc.setVectorStatusType(VectorStatusTypeEnum.失败.index());
-            knowledgeDocumentMapper.updateById(doc);
-        }
+        } finally {bulkRunning.set(false);}
     }
 
-    /**
-     * 解析文档文件
-     */
-    private Document parseDocument(String fileUrl) throws Exception {
-        DocumentParser parser = new ApacheTikaDocumentParser();
-        InputStream inputStream;
-
-        if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
-            // 从URL路径解析出本地文件路径
-            // fileUrl格式: http://localhost:7406/123456789/filename.pdf
-            String relativePath = fileUrl.replaceFirst("http://[^/]+/", "");
-            String localPath = System.getProperty("user.dir") + "/external-resources/" + relativePath;
-            File file = new File(localPath);
-            if (!file.exists()) {
-                // 尝试直接从URL下载
-                inputStream = new URL(fileUrl).openStream();
-            } else {
-                inputStream = new FileInputStream(file);
+    private void index(Integer id,boolean reuseChunks) {
+        if(id==null || !processing.add(id)) return;
+        List<String> added=new ArrayList<>();
+        KnowledgeDocument doc=null;
+        try {
+            doc=knowledgeDocumentMapper.selectById(id);
+            if(doc==null) throw new IllegalArgumentException("文档不存在");
+            doc.setVectorStatusType(VectorStatusTypeEnum.处理中.index());knowledgeDocumentMapper.updateById(doc);
+            List<DocumentChunk> old=documentChunkMapper.selectList(Wrappers.<DocumentChunk>lambdaQuery()
+                    .eq(DocumentChunk::getKnowledgeDocumentId,id).orderByAsc(DocumentChunk::getChunkIndex));
+            List<DocumentChunk> prepared=new ArrayList<>();
+            if(reuseChunks) prepared.addAll(old);
+            else {
+                Document parsed=parseDocument(doc.getFileUrl());int position=0;
+                for(TextSegment segment:DocumentSplitters.recursive(300,30).split(parsed)) {
+                    DocumentChunk chunk=new DocumentChunk();chunk.setKnowledgeDocumentId(id);
+                    chunk.setChunkIndex(++position);chunk.setChunkContent(segment.text());
+                    chunk.setTokenCount(segment.text().length());chunk.setCreationTime(LocalDateTime.now());prepared.add(chunk);
+                }
             }
-        } else {
-            inputStream = new FileInputStream(new File(fileUrl));
-        }
-
-        return parser.parse(inputStream);
+            if(prepared.isEmpty()) throw new IllegalArgumentException("文档没有可用文本，请先上传原文件");
+            List<String> oldIds=old.stream().map(DocumentChunk::getVectorId).filter(VectorServiceImpl::isUuid).toList();
+            for(int offset=0;offset<prepared.size();offset+=16) {
+                List<TextSegment> segments=prepared.subList(offset,Math.min(offset+16,prepared.size())).stream()
+                        .map(c->TextSegment.from(c.getChunkContent(),Metadata.from(Map.of("documentId",id,"chunkIndex",c.getChunkIndex())))).toList();
+                var embeddings=embeddingModel.embedAll(segments).content();
+                if(embeddings.size()!=segments.size()) throw new IllegalStateException("嵌入服务返回数量不一致");
+                var ids=embeddingStore.addAll(embeddings,segments);added.addAll(ids);
+                if(ids.size()!=segments.size() || ids.stream().anyMatch(s->!isUuid(s))) throw new IllegalStateException("向量写入结果无效");
+            }
+            KnowledgeDocument ready=doc;
+            transactions.executeWithoutResult(status->{
+                if(!reuseChunks) documentChunkMapper.delete(Wrappers.<DocumentChunk>lambdaQuery().eq(DocumentChunk::getKnowledgeDocumentId,id));
+                for(int i=0;i<prepared.size();i++) {
+                    DocumentChunk chunk=prepared.get(i);chunk.setVectorId(added.get(i));
+                    if(reuseChunks) documentChunkMapper.updateById(chunk);else documentChunkMapper.insert(chunk);
+                }
+                ready.setChunkCount(prepared.size());ready.setVectorStatusType(VectorStatusTypeEnum.已完成.index());
+                ready.setVectorTime(LocalDateTime.now());knowledgeDocumentMapper.updateById(ready);
+            });
+            removeVectors(oldIds);
+            log.info("文档向量化完成 id={}, chunks={}",id,prepared.size());
+        } catch(Exception e) {
+            removeVectors(added);
+            if(doc!=null) {doc.setVectorStatusType(VectorStatusTypeEnum.失败.index());knowledgeDocumentMapper.updateById(doc);}
+            log.warn("文档向量化失败 id={}, errorType={}",id,e.getClass().getSimpleName());
+        } finally {processing.remove(id);}
+    }
+    @Override public void removeVectors(List<String> ids) {
+        List<String> valid=ids.stream().filter(VectorServiceImpl::isUuid).toList();
+        if(valid.isEmpty()) return;
+        try {embeddingStore.removeAll(valid);} catch(Exception e) {log.warn("旧向量清理待重试 count={}",valid.size());}
+    }
+    private static boolean isUuid(String id) {
+        try {return id!=null && UUID.fromString(id).toString().equalsIgnoreCase(id);}catch(Exception e){return false;}
+    }
+    private Document parseDocument(String location) throws Exception {
+        if(location==null || location.isBlank()) throw new FileNotFoundException("原文件缺失");
+        Path base=Path.of("external-resources").toAbsolutePath().normalize();
+        Path file;
+        if(location.startsWith("http://") || location.startsWith("https://")) {
+            String relative=URI.create(location).getPath().replaceFirst("^/+","");
+            file=base.resolve(relative).normalize();
+        } else {file=Path.of(location).toAbsolutePath().normalize();}
+        if(!file.startsWith(base) || !Files.isRegularFile(file)) throw new FileNotFoundException("请重新上传原文件");
+        try(InputStream in=Files.newInputStream(file)) {return new ApacheTikaDocumentParser().parse(in);}
     }
 }

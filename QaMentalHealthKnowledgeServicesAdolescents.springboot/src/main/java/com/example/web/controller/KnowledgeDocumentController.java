@@ -15,6 +15,21 @@ import lombok.SneakyThrows;
 @RestController()
 @RequestMapping("/knowledgeDocument")
 public class KnowledgeDocumentController {
+    @Autowired
+    private com.example.web.service.VectorService vectorService;
+    @Autowired private com.example.web.service.VectorIndexAudit vectorIndexAudit;
+
+    @RequestMapping(value = "/indexAudit", method = RequestMethod.POST)
+    public java.util.Map<String,Object> indexAudit() { return vectorIndexAudit.inspect(); }
+
+    @RequestMapping(value = "/rebuildAllVectors", method = RequestMethod.POST)
+    public void rebuildAllVectors() { vectorService.rebuildAllVectors(); }
+
+    @RequestMapping(value = "/rebuildVectors", method = RequestMethod.POST)
+    public void rebuildVectors(@RequestBody IdInput input) {
+        if (input.getId() == null) throw new com.example.web.exception.CustomException("请选择文档");
+        vectorService.rebuildVectors(input.getId());
+    }
 
     @Autowired
     private KnowledgeDocumentService knowledgeDocumentService;

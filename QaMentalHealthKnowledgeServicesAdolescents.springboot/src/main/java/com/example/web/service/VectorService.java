@@ -11,4 +11,7 @@ public interface VectorService {
      * @param knowledgeDocumentId 知识文档ID
      */
     void vectorizeDocument(Integer knowledgeDocumentId);
+    void rebuildVectors(Integer knowledgeDocumentId);
+    void rebuildAllVectors();
+    void removeVectors(java.util.List<String> ids);
 }

@@ -1,5 +1,10 @@
 <template>
     <div>
+        <el-alert v-if="indexAudit" :type="indexAudit.healthy ? 'success' : 'warning'" :closable="false"
+            :title="`向量索引：${indexAudit.matchedCount}/${indexAudit.chunkCount} 个分块匹配，${indexAudit.vectorCount} 条真实向量`"
+            :description="indexAudit.healthy ? `索引一致；待处理文档 ${indexAudit.pendingDocumentIds.length} 篇。` : '索引不一致时，可对已有分块重建向量；缺少分块的文档需要重新上传原文件。'" show-icon style="margin-bottom:16px" />
+        <el-button type="warning" @click="rebuildAll" style="margin-bottom:16px">重建全部分块向量</el-button>
+        <el-button @click="refreshIndex" :loading="auditLoading" style="margin-bottom:16px">刷新索引检查</el-button>
         <!-- 搜索表单卡片 -->
         <el-card class="box-card">
             <div slot="header" class="clearfix">
@@ -172,13 +177,14 @@
                 <el-table-column label="上传时间" min-width="160" show-overflow-tooltip>
                     <template #default="{ row }">{{ row.creationTime }}</template>
                 </el-table-column>
-                <el-table-column label="操作" width="320" fixed="right">
+                <el-table-column label="操作" width="470" fixed="right">
                     <template #default="{ row }">
                         <el-button type="primary" size="default" @click="showDetail(row.id)">详情</el-button>
                         <el-button type="warning" size="default" @click="handleReVectorize(row)"
                             :disabled="row.vectorStatusType === 2">
                             重新向量化
                         </el-button>
+                        <el-button v-if="row.chunkCount > 0" @click="rebuildExisting(row)" :disabled="row.vectorStatusType === 2">重建分块向量</el-button>
                         <el-button type="danger" size="default" @click="showDeleteModal(row.id)">删除</el-button>
                     </template>
                 </el-table-column>
@@ -219,6 +225,27 @@ const detailAiLoading = ref(false);
 const parseLoading = ref(false);
 const tableData = ref([]);
 const loading = ref(false);
+const indexAudit = ref(null);
+const auditLoading = ref(false);
+const refreshIndex = async () => {
+    auditLoading.value = true;
+    try { const result = await post('/knowledgeDocument/indexAudit', {}); if(result.success) indexAudit.value = result.data; }
+    finally { auditLoading.value = false; }
+};
+const rebuildAll = async () => {
+    try {
+        await ElMessageBox.confirm('对所有已有分块顺序重建向量？这会调用嵌入服务；缺少原文件及分块的文档会跳过。', '重建全部向量', { type:'warning' });
+        const result = await post('/knowledgeDocument/rebuildAllVectors', {});
+        if (result.success) { ElMessage.success('已开始顺序重建，请稍后刷新索引检查'); fetchData(); }
+    } catch { }
+};
+const rebuildExisting = async (row) => {
+    try {
+        await ElMessageBox.confirm(`基于「${row.docTitle}」已有分块重新生成向量？这会调用嵌入服务。`, '重建向量', { type:'warning' });
+        const result = await post('/knowledgeDocument/rebuildVectors', { id: row.id });
+        if(result.success) { ElMessage.success('已开始重建，请稍后刷新索引检查'); fetchData(); }
+    } catch { }
+};
 const selectedRows = ref([]);
 
 const pagination = reactive({ page: 1, limit: 10, total: 0 });
@@ -400,7 +427,7 @@ const batchDelete = async () => {
     } catch { }
 };
 
-onMounted(() => { fetchData(); });
+onMounted(() => { fetchData(); refreshIndex(); });
 </script>
 
 <style scoped lang="scss">
