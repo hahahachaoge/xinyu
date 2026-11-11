@@ -43,7 +43,7 @@
                         <div class="welcome-topics">
                             <button v-for="topic in welcomeTopics" :key="topic.title" @click="chooseTopic(topic.question)" :class="topic.tone"><WellbeingIcon :name="topic.icon" /><span class="topic-copy"><strong>{{ topic.title }}</strong><small>{{ topic.question }}</small></span><WellbeingIcon class="topic-arrow" name="arrow" /></button>
                         </div>
-                        <div class="trust-row"><span><WellbeingIcon name="book" />基于专业知识库</span><span><WellbeingIcon name="document" />回答附参考来源</span><span><WellbeingIcon name="shield" />尊重个人隐私</span></div>
+                        <div class="trust-row"><span><WellbeingIcon name="book" />基于专业知识库</span><span><WellbeingIcon name="document" />支持多轮交流</span><span><WellbeingIcon name="shield" />尊重个人隐私</span></div>
                     </section>
                     <div class="message-item" :class="msg.senderRole === 1 ? 'user' : 'system'" v-for="msg in messages" :key="msg.id">
                         <div class="message-avatar" :class="msg.senderRole === 1 ? 'user-avatar' : 'system-avatar'">
@@ -52,19 +52,9 @@
                         </div>
                         <div class="message-content">
                             <div class="message-bubble" :class="msg.senderRole === 1 ? 'user-bubble' : 'system-bubble'">
-                                <span v-if="msg.senderRole === 2" v-html="formatContent(msg.messageContent)"></span>
+                                <span v-if="msg.senderRole === 2" v-html="formatContent(msg.messageContent, msg.retrievedChunkIds)"></span>
                                 <span v-else>{{ msg.messageContent }}</span>
                             </div>
-                            <!-- 知识溯源 -->
-                            <div class="source-tags" v-if="msg.senderRole === 2 && msg.retrievedChunkIds">
-                                <svg viewBox="0 0 16 16" fill="#397b68" width="12" height="12"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L13.414 4A2 2 0 0114 5.414V12a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg>
-                                <span class="source-label">来源：</span>
-                                <span class="source-chunk-tag" v-for="cid in parseChunkIds(msg.retrievedChunkIds)" :key="cid" @click="showChunkDetail(cid)">
-                                    片段 #{{ cid }}
-                                </span>
-                            </div>
-                            <p v-if="msg.senderRole === 2 && !msg.retrievedChunkIds" class="source-tags">本条回答未引用知识库资料</p>
-                            <p v-if="msg.retrievalMode === 'keyword'" class="source-tags">本次参考资料通过关键词检索获得</p>
                             <!-- 反馈按钮 -->
                             <div class="feedback-btns" v-if="msg.senderRole === 2 && msg.id">
                                 <span class="fb-btn" :class="{ 'fb-active': msg.feedback === 5 }" @click="submitFeedback(msg, 5)">
@@ -85,7 +75,7 @@
                         </div>
                         <div class="message-content">
                             <div class="message-bubble system-bubble">
-                                <span v-html="formatContent(streamingContent)"></span>
+                                <span v-html="formatContent(streamingContent, streamingChunkIds)"></span>
                                 <span class="typing-cursor" v-if="streamingContent">|</span>
                                 <span class="typing-dots" v-else>
                                     <span>.</span><span>.</span><span>.</span>
@@ -117,35 +107,6 @@
             <p class="support-copy">如果困扰持续影响学习、睡眠或日常生活，可以向信任的家人、老师或学校心理老师倾诉，也可以到正规医疗机构的心理科寻求专业支持。</p>
             <p class="support-copy">可以先写下最近的感受和需要的帮助，再选择让自己感到安心的方式开口。</p>
             <template #footer><el-button type="primary" @click="supportDialogShow = false">我知道了</el-button></template>
-        </el-dialog>
-        <!-- 知识片段详情弹窗 -->
-        <el-dialog class="front-dialog" title="知识溯源详情" v-model="chunkDialogShow" width="min(600px, 92vw)" :close-on-click-modal="true">
-            <div class="chunk-detail" v-if="chunkDetail">
-                <div class="chunk-doc-info" v-if="chunkDetail.docTitle">
-                    <div class="chunk-doc-title">
-                        <svg viewBox="0 0 16 16" fill="#397b68" width="16" height="16"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L13.414 4A2 2 0 0114 5.414V12a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg>
-                        <span>{{ chunkDetail.docTitle }}</span>
-                        <el-tag size="small" type="info" v-if="chunkDetail.fileFormat">{{ chunkDetail.fileFormat }}</el-tag>
-                    </div>
-                    <p class="chunk-doc-desc" v-if="chunkDetail.docDesc">{{ chunkDetail.docDesc }}</p>
-                    <div v-if="chunkDetail.sourceReferences?.length" class="chunk-source-links">
-                        <p>文档标注的外部出处（请核对原文）：</p>
-                        <p v-for="source in chunkDetail.sourceReferences" :key="source.url">
-                            <a :href="source.url" target="_blank" rel="noopener noreferrer">{{ source.title }} ↗</a>
-                        </p>
-                    </div>
-                    <p v-else class="chunk-doc-desc">该文档尚未标注可核对的外部出处。</p>
-                </div>
-                <div class="chunk-meta">
-                    <span>片段序号：第 {{ chunkDetail.chunkIndex }} 块</span>
-                    <span>Token数：{{ chunkDetail.tokenCount || '-' }}</span>
-                </div>
-                <div class="chunk-content-box">
-                    <div class="chunk-content-label">片段内容</div>
-                    <div class="chunk-content-text">{{ chunkDetail.chunkContent }}</div>
-                </div>
-            </div>
-            <div class="chunk-empty" v-else>该知识片段不存在或已被删除</div>
         </el-dialog>
     </div>
 </template>
@@ -199,15 +160,21 @@ const sessionLoading = ref(false);
 const streamingMode = ref('');
 let streamController = null;
 let disposed = false;
-const chunkDialogShow = ref(false);
-const chunkDetail = ref(null);
 
 const currentSession = computed(() => sessionList.value.find(s => s.id === currentSessionId.value));
 
-// 格式化AI回复内容（换行处理）
-const formatContent = (content) => {
+const chunkReference = String.raw`(?:来源\s*)?片段\s*[#＃]?\s*\d+(?:\s*[,，、/]\s*(?:(?:来源\s*)?片段\s*)?[#＃]?\s*\d+)*`;
+const chunkCitationPattern = new RegExp(`[（(【\\[]\\s*${chunkReference}\\s*[）)】\\]]|${chunkReference}`, 'g');
+
+// 仅在显示时去掉片段引用；保留原始消息内容。
+const formatContent = (content, chunkIds = '') => {
     if (!content) return '';
-    return content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br/>');
+    const retrievedIds = new Set((chunkIds || '').split(',').map(id => id.trim()).filter(Boolean));
+    const text = content.replace(chunkCitationPattern, '')
+        .replace(/[【\[]\s*(\d+(?:\s*[,，、]\s*\d+)*)\s*[】\]]/g, (match, ids) =>
+            ids.split(/\s*[,，、]\s*/).every(id => retrievedIds.has(id)) ? '' : match)
+        .replace(/^\s*(?:参考来源|来源|参考资料|知识来源)\s*[:：]\s*$/gm, '').trimEnd();
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br/>');
 };
 
 // 滚动到底部
@@ -336,22 +303,6 @@ const submitFeedback = async (msg, rating) => {
     }
 };
 
-// 解析chunkIds字符串为数组
-const parseChunkIds = (chunkIds) => {
-    if (!chunkIds) return [];
-    return chunkIds.split(',').map(s => s.trim()).filter(s => s);
-};
-
-// 查看知识片段详情
-const showChunkDetail = async (chunkId) => {
-    chunkDetail.value = null;
-    chunkDialogShow.value = true;
-    const { data, success } = await post('/aiChat/getChunkDetails', { chunkIds: [Number(chunkId)] });
-    if (success && data && data.length > 0) {
-        chunkDetail.value = data[0];
-    } else { ElMessage.warning('来源片段不存在或已移除'); chunkDialogShow.value = false; }
-};
-
 onMounted(async () => {
     if (commonStore.token) {
         await loadSessions();
@@ -406,13 +357,10 @@ h3, h4 { font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif; color: #112
 .welcome-topics button:hover { transform: translateY(-3px); box-shadow: 0 6px 18px #5e6bb51a; }.welcome-topics button.purple { background: #f3effe; color: #8c55bf; border-color: #f0eafe; }.welcome-topics button.pink { background: #fdf0f7; color: #a24cae; border-color: #fae7f2; }
 .welcome-topics button > svg { width: 34px; height: 34px; flex-shrink: 0; }.topic-copy { min-width: 0; }.topic-copy strong { display: block; color: #1e386a; font-family: 'SimSun', serif; font-size: 18px; font-weight: 600; margin-bottom: 8px; }.topic-copy small { font-size: 12px; color: #8390b8; line-height: 1.5; white-space: nowrap; }.welcome-topics button > svg.topic-arrow { position: absolute; width: 19px; height: 19px; right: 17px; bottom: 13px; }
 .trust-row { display: flex; align-items: center; justify-content: center; gap: 0; margin: 24px 0 20px; font-size: 13px; color: #7181b0; }.trust-row span { display: flex; align-items: center; justify-content: center; gap: 9px; padding: 0 30px; border-right: 1px solid #bdcbed; }.trust-row span:last-child { border: 0; }.trust-row svg { width: 22px; height: 22px; color: #3d63bb; }
-.composer-wrap { padding: 0 24px 12px; flex-shrink: 0; }.chat-input-area { padding: 12px 14px 12px 20px; border: 1px solid #9cb7ff; border-radius: 17px; background: #ffffffc7; box-shadow: 0 4px 18px #6784c412; }.chat-input-area:focus-within { border-color: #6486df; box-shadow: 0 0 0 3px #698aff12; }.chat-input-area :deep(.el-textarea__inner) { box-shadow: none; border: 0; background: transparent; padding: 5px 0; font: inherit; font-size: 15px; color: #3f5686; min-height: 40px !important; }.chat-input-area :deep(.el-textarea__inner::placeholder) { color: #a1adce; }.composer-actions { display: flex; justify-content: space-between; align-items: center; }.composer-actions > svg { width: 27px; height: 27px; color: #6789dc; }.composer-actions .el-button { border: 0; border-radius: 24px; min-width: 106px; height: 39px; background: linear-gradient(#7a98e6, #4469bc); color: white; }.composer-actions .el-button.is-disabled { opacity: .75; }.input-hint { text-align: right; font-size: 11px; color: #a0add0; padding-top: 6px; }.chat-disclaimer { text-align: center; font-size: 11px; color: #a0add0; margin-top: -1px; }
+.composer-wrap { padding: 0 24px 12px; flex-shrink: 0; }.chat-input-area { --composer-button-width: 106px; padding: 12px 14px 12px 20px; border: 1px solid #9cb7ff; border-radius: 17px; background: #ffffffc7; box-shadow: 0 4px 18px #6784c412; }.chat-input-area:focus-within { border-color: #6486df; box-shadow: 0 0 0 3px #698aff12; }.chat-input-area :deep(.el-textarea) { width: 100%; min-width: 0; }.chat-input-area :deep(.el-textarea__inner) { box-shadow: none; border: 0; background: transparent; padding: 5px 0; font: inherit; font-size: 15px; color: #3f5686; min-height: 40px !important; }.chat-input-area :deep(.el-textarea__inner::placeholder) { color: #a1adce; }.composer-actions { margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }.composer-actions > svg { width: 27px; height: 27px; color: #6789dc; }.composer-actions .el-button { border: 0; border-radius: 24px; min-width: var(--composer-button-width); height: 39px; background: linear-gradient(#7a98e6, #4469bc); color: white; }.composer-actions .el-button.is-disabled { opacity: .75; }.input-hint { text-align: right; font-size: 11px; color: #a0add0; padding-top: 6px; }.chat-disclaimer { text-align: center; font-size: 11px; color: #a0add0; margin-top: -1px; }
 .recommend-sidebar { padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }.recommend-sidebar > h3 { font-size: 20px; margin-bottom: 16px; letter-spacing: 1px; }.reading-card { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid #e5eafa; }.reading-card > img { display: block; width: 100%; height: clamp(130px, 16.4vh, 182px); object-fit: cover; border-radius: 11px; }.reading-card > img.desk-image { object-position: 15% 80%; }.reading-card > img.window-image { object-position: 85% 35%; }.reading-card h4 { font-size: 19px; margin: 10px 0; }.reading-tags { display: flex; gap: 10px; flex-wrap: wrap; }.reading-tags span { padding: 4px 12px; background: #edf3ff; color: #657ba9; border: 1px solid #d1ddff; border-radius: 20px; font-size: 12px; }.reading-card p { font-size: 14px; color: #8996b8; line-height: 1.7; margin: 9px 0 10px; }.reading-card a { display: inline-flex; align-items: center; gap: 9px; color: #385caa; font-size: 14px; text-decoration: none; }.reading-card a:hover { text-decoration: underline; }.reading-card a svg { width: 20px; height: 20px; }
 .support-card { position: relative; display: block; text-align: left; padding: 22px 17px; border: 0; border-radius: 12px; background: linear-gradient(120deg, #e9f1ff, #e6edfc); margin-top: auto; color: #5271a8; overflow: hidden; flex-shrink: 0; }.support-card h4 { font-size: 19px; position: relative; z-index: 1; }.support-card p { font-size: 13px; line-height: 1.7; margin: 6px 0 10px; }.support-card span { font-size: 13px; }.support-card > svg { position: absolute; width: 115px; height: 115px; right: -18px; bottom: -13px; color: #91a7d5; opacity: .6; }.support-copy { line-height: 1.9; margin: 0 0 14px; }
-.message-item { display: flex; gap: 10px; padding: 12px; }.message-item.user { flex-direction: row-reverse; }.message-avatar { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #edf1fd; flex-shrink: 0; }.message-avatar svg { fill: #6382c5; }.message-content { max-width: 82%; }.message-bubble { padding: 12px 16px; border-radius: 12px; line-height: 1.8; font-size: 14px; overflow-wrap: anywhere; }.system-bubble { background: #eef3fc; }.user-bubble { background: #5779c4; color: white; }.source-tags, .feedback-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: #7a8bb6; }.source-chunk-tag, .fb-btn { cursor: pointer; padding: 3px 8px; background: #eef2fd; border-radius: 5px; }.fb-btn { display: flex; align-items: center; gap: 3px; }.fb-active { color: #365ba6; }.fb-active-bad { color: #bb6a8e; }.typing-cursor, .typing-dots { animation: blink 1s infinite; }@keyframes blink { 50% { opacity: .25; } }
-.chunk-doc-info, .chunk-content-text { padding: 14px; border-radius: 10px; background: #f1f5fd; line-height: 1.8; }.chunk-doc-title { display: flex; gap: 8px; align-items: center; }.chunk-doc-desc { margin-top: 8px; }.chunk-meta { display: flex; gap: 20px; margin: 15px 0; }.chunk-content-label { margin-bottom: 8px; }.chunk-content-text { white-space: pre-wrap; overflow-wrap: anywhere; }
-.chunk-source-links { margin-top: 12px; overflow-wrap: anywhere; }
-.chunk-source-links a { color: #397b68; text-decoration: underline; }
+.message-item { display: flex; gap: 10px; padding: 12px; }.message-item.user { flex-direction: row-reverse; }.message-avatar { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #edf1fd; flex-shrink: 0; }.message-avatar svg { fill: #6382c5; }.message-content { max-width: 82%; }.message-bubble { padding: 12px 16px; border-radius: 12px; line-height: 1.8; font-size: 14px; overflow-wrap: anywhere; }.system-bubble { background: #eef3fc; }.user-bubble { background: #5779c4; color: white; }.feedback-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: #7a8bb6; }.fb-btn { cursor: pointer; padding: 3px 8px; background: #eef2fd; border-radius: 5px; }.fb-btn { display: flex; align-items: center; gap: 3px; }.fb-active { color: #365ba6; }.fb-active-bad { color: #bb6a8e; }.typing-cursor, .typing-dots { animation: blink 1s infinite; }@keyframes blink { 50% { opacity: .25; } }
 @media (min-height: 960px) { .chat-page { min-height: 850px; }.session-list { min-height: 205px; flex-basis: 255px; max-height: 255px; }.sidebar-header { padding-top: 32px; }.welcome-description { margin-bottom: 22px; }.trust-row { margin: 26px 0 24px; } }
 @media (max-width: 1350px) { .chat-layout { grid-template-columns: 225px minmax(0, 1fr) 250px; }.chat-sidebar, .recommend-sidebar { padding-left: 16px; padding-right: 16px; }.sidebar-art { margin: 0 -16px; }.chat-header { gap: 10px; padding: 17px; }.chat-header h3 { font-size: 20px; }.chat-tip { font-size: 10px; }.welcome-topics { gap: 10px; padding: 0 8px; }.welcome-topics button { padding: 20px 12px; gap: 10px; }.topic-copy strong { font-size: 16px; }.topic-copy small { white-space: normal; font-size: 11px; }.welcome-topics button > svg { width: 28px; height: 28px; }.trust-row span { padding: 0 16px; font-size: 11px; }.reading-card h4 { font-size: 17px; }.reading-tags span { padding: 4px 9px; } }
 @media (max-width: 1100px) { .chat-layout { grid-template-columns: 220px minmax(0, 1fr); gap: 10px; }.recommend-sidebar { display: none; }.chat-page { min-height: 760px; }.chat-welcome > img { height: 300px; } }
