@@ -18,6 +18,14 @@ public class KnowledgeDocumentController {
     @Autowired
     private com.example.web.service.VectorService vectorService;
     @Autowired private com.example.web.service.VectorIndexAudit vectorIndexAudit;
+    @Autowired private DocumentSources documentSources;
+    @Autowired private KnowledgeDocumentMapper knowledgeDocumentMapper;
+
+    @PostMapping("/sources")
+    public java.util.List<DocumentSources.Reference> sources(@RequestBody IdInput input) {
+        var doc = input.getId() == null ? null : knowledgeDocumentMapper.selectById(input.getId());
+        return doc == null ? java.util.List.of() : documentSources.read(doc.getFileUrl());
+    }
 
     @RequestMapping(value = "/indexAudit", method = RequestMethod.POST)
     public java.util.Map<String,Object> indexAudit() { return vectorIndexAudit.inspect(); }

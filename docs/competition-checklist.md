@@ -8,6 +8,8 @@
 
 2026-11-11：生产配置、Nginx 代理、跨平台上传及发布文件已补充，见 [上线第 3 步](deployment-step-3.md)。目前无服务器，尚未公网部署。
 
+2026-11-11 后续：ID 4 已补充有出处的新整理稿，当前 44/44 向量关联且无待处理文档；聊天和后台显示资料标注的外部出处。其他历史资料来源仍待逐篇核对，见 [知识资料与出处维护](knowledge-provenance.md)。
+
 官方页面：[AI WEB 网页开发挑战赛](https://www.boxuegu.com/matchTrack/detail/?id=10037)。页面通过[公开详情接口](https://gateway.boxuegu.com/portal-marketing/competition/track/detail?id=10037&includeDetail=true)加载内容。本清单区分官方要求、已确认问题和改进建议，不代表官方评分或获奖预测。
 
 ## 已有基础

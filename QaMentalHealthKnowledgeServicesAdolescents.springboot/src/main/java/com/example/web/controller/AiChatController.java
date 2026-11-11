@@ -56,6 +56,7 @@ public class AiChatController {
 
     @Autowired
     private KnowledgeDocumentMapper knowledgeDocumentMapper;
+    @Autowired private com.example.web.service.DocumentSources documentSources;
 
     /**
      * 创建新的对话会话
@@ -168,6 +169,7 @@ public class AiChatController {
                     item.put("docTitle", doc.getDocTitle());
                     item.put("docDesc", doc.getDocDesc());
                     item.put("fileFormat", doc.getFileFormat());
+                    item.put("sourceReferences", documentSources.read(doc.getFileUrl()));
                 }
             }
             result.add(item);

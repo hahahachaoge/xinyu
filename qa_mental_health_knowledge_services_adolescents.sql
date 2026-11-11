@@ -334,7 +334,7 @@ CREATE TABLE `document_chunk`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `knowledge_document_id`(`knowledge_document_id` ASC) USING BTREE,
   CONSTRAINT `document_chunk_ibfk_1` FOREIGN KEY (`knowledge_document_id`) REFERENCES `knowledge_document` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 57 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '文档分块表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 61 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '文档分块表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of document_chunk
@@ -379,6 +379,12 @@ INSERT INTO `document_chunk` VALUES (53, '2026-09-13 08:52:12', 12, 2, '1. 过�
 INSERT INTO `document_chunk` VALUES (54, '2026-09-13 08:52:12', 12, 3, '2. 放松技巧\r\n- 腹式呼吸法：缓慢深呼吸，吸气时腹部鼓起，呼气时腹部收缩，每次练习5-10分钟\r\n- 渐进性肌肉放松：从脚趾开始，依次紧绷和放松全身各部位的肌肉\r\n- 正念冥想：将注意力集中在当下的呼吸上，不评判地观察自己的想法和感受\n\n3. 学习策略优化\r\n- 制定合理的复习计划，将大目标分解为小步骤\r\n- 使用间隔重复法，定期回顾已学内容\r\n- 通过模拟考试熟悉考试环境和节奏\r\n- 保证充足的睡眠和适当的运动\n\n四、学业压力的长期管理', 223, '31ceef8e-9109-479f-aecd-a710df20f63b');
 INSERT INTO `document_chunk` VALUES (55, '2026-09-13 08:52:12', 12, 4, '1. 时间管理：使用番茄工作法等工具，合理分配学习和休息时间。\r\n2. 目标设定：设定SMART目标（具体、可衡量、可达成、相关、有时限）。\r\n3. 建立支持系统：与同学组成学习小组，互相鼓励和帮助。\r\n4. 培养兴趣爱好：在学习之余发展自己的兴趣，保持生活的平衡。\r\n5. 学会求助：当压力超出自己的承受范围时，及时向老师、家长或心理咨询师寻求帮助。\n\n五、考试当天的应对策略', 189, 'ceea892e-f361-421f-86d7-1240f90a6fc5');
 INSERT INTO `document_chunk` VALUES (56, '2026-09-13 08:52:12', 12, 5, '1. 提前到达考场，给自己留出适应环境的时间\r\n2. 考前做几次深呼吸，让身体放松下来\r\n3. 先浏览整张试卷，从自己最有把握的题目开始做\r\n4. 遇到不会的题目先跳过，不要在一道题上花太多时间\r\n5. 考完一科不要对答案，专注准备下一科', 119, 'c9daa1c2-b3dd-4f6c-9ab6-b5468a44db5f');
+
+-- Document 4: sourced project summary; generate vector IDs locally before use.
+INSERT INTO `document_chunk` VALUES (57, '2026-11-11 11:44:32', 4, 1, '# 心理健康自我保健知识\n\n资料性质：项目根据公开科普资料整理的学习稿，经 AI 辅助整理；不是机构原文，未经临床专家审定，不用于诊断、治疗或个体用药决策。\n整理与链接核对日期：2026-11-11。\n阅读方法：各节末尾的 S1、S2 对应文末参考来源；具体内容和适用范围以链接中的原文为准。\n\n## 一、认识心理保健与支持环境\n\n心理健康不只是个人意志的问题。家庭、学校和社区的条件，以及人与人之间的支持关系，都与心理状态有关。青少年需要适合成长的环境，遇到困扰时可以把家庭、学校和社区中的支持一并考虑，而非独自承担。依据：S1。\n\n## 二、把活动、睡眠和压力应对一起关注', 288, NULL);
+INSERT INTO `document_chunk` VALUES (58, '2026-11-11 11:44:32', 4, 2, '适合自身情况的身体活动可以成为情绪保健的一部分。睡眠持续不佳值得重视；减压时可检查想法是否符合实际、寻求人际支持，并选择有益身心的生活习惯。这些科普方法不能代替对持续困扰的专业评估。依据：S2。\n\n## 三、怎样理解主动求助\n\n寻求专业支持不等于软弱，也不能据此断定自己患病。可以向正规医疗机构或专业心理服务了解评估与支持方式；已有精神类处方药的使用者，应把变化反馈给医生，用药调整由医生指导。依据：S2。\n\n## 参考来源', 212, NULL);
+INSERT INTO `document_chunk` VALUES (59, '2026-11-11 11:44:32', 4, 3, '- [S1｜世界卫生组织：精神卫生（页面日期 2026-09-11）](https://www.who.int/zh/news-room/fact-sheets/detail/mental-health-strengthening-our-response)\n- [S2｜中国科学院心理研究所：心理健康素养十条（2018 年版；网页发布 2019-01-12）](https://mhl.psych.ac.cn/index/index.html)', 223, NULL);
+INSERT INTO `document_chunk` VALUES (60, '2026-11-11 11:44:32', 4, 4, '引用说明：S2 页面介绍了国家卫健委疾控局组织编制的十条科普内容。本稿只作简要归纳，不代表上述机构对本项目的审核、背书或授权；项目整理与表述由项目负责。', 76, NULL);
 
 -- ----------------------------
 -- Table structure for favorite
@@ -477,7 +483,7 @@ CREATE TABLE `knowledge_document`  (
 INSERT INTO `knowledge_document` VALUES (1, '2026-09-30 08:03:31', 1, '青少年心理发展特征概述', '系统介绍12-18岁青少年心理发展的主要特征与规律', NULL, 'PDF', '2.3MB', 2, 3, '2026-09-30 08:33:31', 1);
 INSERT INTO `knowledge_document` VALUES (2, '2026-09-23 08:07:02', 2, '情绪调节与压力管理指南', '提供科学的情绪调节方法和压力管理策略', NULL, 'PDF', '1.8MB', 2, 3, '2026-09-23 08:37:02', 1);
 INSERT INTO `knowledge_document` VALUES (3, '2026-09-16 08:10:33', 3, '青少年常见心理问题识别手册', '帮助识别焦虑、抑郁、社交恐惧等常见心理问题的表现与应对', NULL, 'TXT', '1.2MB', 2, 3, '2026-09-16 08:40:33', 1);
-INSERT INTO `knowledge_document` VALUES (4, '2026-09-09 08:14:04', 5, '心理健康自我保健知识', '日常心理健康维护与自我保健的基础知识', NULL, 'Markdown', '0.9MB', 0, 1, NULL, 1);
+INSERT INTO `knowledge_document` VALUES (4, '2026-09-09 08:14:04', 5, '心理健康自我保健知识', '项目根据世界卫生组织及中科院心理研究所公开科普资料整理的学习稿，2026-11-11补充；非机构原文，未经临床专家审定。各节标注来源，完整链接见文末。', '/api/1000000040/心理健康自我保健知识.md', 'MD', '1.9KB', 4, 1, NULL, 1);
 INSERT INTO `knowledge_document` VALUES (5, '2026-10-02 08:17:35', 1, '青少年自我认同与身份发展', '介绍青少年自我认同的四种状态及影响因素，提供促进健康认同发展的建议', 'http://localhost:7406/100000001/青少年自我认同与身份发展.txt', 'TXT', '3.2KB', 4, 3, '2026-10-02 08:47:35', 1);
 INSERT INTO `knowledge_document` VALUES (6, '2026-09-25 08:21:06', 1, '青少年人际交往与社交技能', '涵盖青少年人际关系特点、常见困扰、核心社交技能及改善方法', 'http://localhost:7406/100000002/青少年人际交往与社交技能.txt', 'TXT', '2.8KB', 4, 3, '2026-09-25 08:51:06', 1);
 INSERT INTO `knowledge_document` VALUES (7, '2026-09-18 08:24:37', 2, '考试焦虑与学业压力应对指南', '系统讲解考试焦虑的成因、应对方法和学业压力的长期管理策略', 'http://localhost:7406/100000003/考试焦虑与学业压力应对指南.txt', 'TXT', '3.5KB', 5, 3, '2026-09-18 08:54:37', 1);

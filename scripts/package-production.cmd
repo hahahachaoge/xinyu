@@ -33,6 +33,12 @@ copy /y qa_mental_health_knowledge_services_adolescents.sql "%OUT%\" >nul
 if errorlevel 1 goto failed
 copy /y docs\deployment-step-3.md "%OUT%\README.md" >nul
 if errorlevel 1 goto failed
+copy /y docs\knowledge-provenance.md "%OUT%\knowledge-provenance.md" >nul
+if errorlevel 1 goto failed
+mkdir "%OUT%\docs\migrations"
+if errorlevel 1 goto failed
+copy /y docs\migrations\20261111-document-4.sql "%OUT%\docs\migrations\" >nul
+if errorlevel 1 goto failed
 echo Deployment files: %CD%\%OUT%
 echo Copy .env.example to .env.properties and configure it privately on the server.
 echo See README.md in the output directory before starting services.

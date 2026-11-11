@@ -128,6 +128,13 @@
                         <el-tag size="small" type="info" v-if="chunkDetail.fileFormat">{{ chunkDetail.fileFormat }}</el-tag>
                     </div>
                     <p class="chunk-doc-desc" v-if="chunkDetail.docDesc">{{ chunkDetail.docDesc }}</p>
+                    <div v-if="chunkDetail.sourceReferences?.length" class="chunk-source-links">
+                        <p>文档标注的外部出处（请核对原文）：</p>
+                        <p v-for="source in chunkDetail.sourceReferences" :key="source.url">
+                            <a :href="source.url" target="_blank" rel="noopener noreferrer">{{ source.title }} ↗</a>
+                        </p>
+                    </div>
+                    <p v-else class="chunk-doc-desc">该文档尚未标注可核对的外部出处。</p>
                 </div>
                 <div class="chunk-meta">
                     <span>片段序号：第 {{ chunkDetail.chunkIndex }} 块</span>
@@ -404,6 +411,8 @@ h3, h4 { font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif; color: #112
 .support-card { position: relative; display: block; text-align: left; padding: 22px 17px; border: 0; border-radius: 12px; background: linear-gradient(120deg, #e9f1ff, #e6edfc); margin-top: auto; color: #5271a8; overflow: hidden; flex-shrink: 0; }.support-card h4 { font-size: 19px; position: relative; z-index: 1; }.support-card p { font-size: 13px; line-height: 1.7; margin: 6px 0 10px; }.support-card span { font-size: 13px; }.support-card > svg { position: absolute; width: 115px; height: 115px; right: -18px; bottom: -13px; color: #91a7d5; opacity: .6; }.support-copy { line-height: 1.9; margin: 0 0 14px; }
 .message-item { display: flex; gap: 10px; padding: 12px; }.message-item.user { flex-direction: row-reverse; }.message-avatar { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #edf1fd; flex-shrink: 0; }.message-avatar svg { fill: #6382c5; }.message-content { max-width: 82%; }.message-bubble { padding: 12px 16px; border-radius: 12px; line-height: 1.8; font-size: 14px; overflow-wrap: anywhere; }.system-bubble { background: #eef3fc; }.user-bubble { background: #5779c4; color: white; }.source-tags, .feedback-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: #7a8bb6; }.source-chunk-tag, .fb-btn { cursor: pointer; padding: 3px 8px; background: #eef2fd; border-radius: 5px; }.fb-btn { display: flex; align-items: center; gap: 3px; }.fb-active { color: #365ba6; }.fb-active-bad { color: #bb6a8e; }.typing-cursor, .typing-dots { animation: blink 1s infinite; }@keyframes blink { 50% { opacity: .25; } }
 .chunk-doc-info, .chunk-content-text { padding: 14px; border-radius: 10px; background: #f1f5fd; line-height: 1.8; }.chunk-doc-title { display: flex; gap: 8px; align-items: center; }.chunk-doc-desc { margin-top: 8px; }.chunk-meta { display: flex; gap: 20px; margin: 15px 0; }.chunk-content-label { margin-bottom: 8px; }.chunk-content-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.chunk-source-links { margin-top: 12px; overflow-wrap: anywhere; }
+.chunk-source-links a { color: #397b68; text-decoration: underline; }
 @media (min-height: 960px) { .chat-page { min-height: 850px; }.session-list { min-height: 205px; flex-basis: 255px; max-height: 255px; }.sidebar-header { padding-top: 32px; }.welcome-description { margin-bottom: 22px; }.trust-row { margin: 26px 0 24px; } }
 @media (max-width: 1350px) { .chat-layout { grid-template-columns: 225px minmax(0, 1fr) 250px; }.chat-sidebar, .recommend-sidebar { padding-left: 16px; padding-right: 16px; }.sidebar-art { margin: 0 -16px; }.chat-header { gap: 10px; padding: 17px; }.chat-header h3 { font-size: 20px; }.chat-tip { font-size: 10px; }.welcome-topics { gap: 10px; padding: 0 8px; }.welcome-topics button { padding: 20px 12px; gap: 10px; }.topic-copy strong { font-size: 16px; }.topic-copy small { white-space: normal; font-size: 11px; }.welcome-topics button > svg { width: 28px; height: 28px; }.trust-row span { padding: 0 16px; font-size: 11px; }.reading-card h4 { font-size: 17px; }.reading-tags span { padding: 4px 9px; } }
 @media (max-width: 1100px) { .chat-layout { grid-template-columns: 220px minmax(0, 1fr); gap: 10px; }.recommend-sidebar { display: none; }.chat-page { min-height: 760px; }.chat-welcome > img { height: 300px; } }

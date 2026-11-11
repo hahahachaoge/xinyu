@@ -108,6 +108,13 @@
                     <div class="detail-label">文档描述</div>
                     <div class="detail-text">{{ detailData.docDesc }}</div>
                 </div>
+                <div class="detail-desc">
+                    <strong>文档标注的外部出处</strong>
+                    <p v-for="source in documentSources" :key="source.url">
+                        <a :href="source.url" target="_blank" rel="noopener noreferrer">{{ source.title }} ↗</a>
+                    </p>
+                    <p v-if="!documentSources.length">尚未标注可核对的外部出处。</p>
+                </div>
                 <!-- 分块信息 -->
                 <div class="detail-chunks" v-if="chunkList.length > 0">
                     <div class="detail-label">分块信息（共 {{ chunkList.length }} 块）</div>
@@ -177,9 +184,10 @@
                 <el-table-column label="上传时间" min-width="160" show-overflow-tooltip>
                     <template #default="{ row }">{{ row.creationTime }}</template>
                 </el-table-column>
-                <el-table-column label="操作" width="470" fixed="right">
+                <el-table-column label="操作" width="530" fixed="right">
                     <template #default="{ row }">
                         <el-button type="primary" size="default" @click="showDetail(row.id)">详情</el-button>
+                        <el-button @click="showEditModal(row.id)" :disabled="row.vectorStatusType === 2">编辑</el-button>
                         <el-button type="warning" size="default" @click="handleReVectorize(row)"
                             :disabled="row.vectorStatusType === 2">
                             重新向量化
@@ -217,9 +225,11 @@ const formData = reactive({
     uploaderId: null
 });
 const editorShow = ref(false);
+const originalFileUrl = ref('');
 const editModalForm = ref(null);
 const detailShow = ref(false);
 const detailData = ref({});
+const documentSources = ref([]);
 const chunkList = ref([]);
 const detailAiLoading = ref(false);
 const parseLoading = ref(false);
@@ -321,6 +331,7 @@ const showEditModal = async (id) => {
         if (success && data) {
             Object.assign(formData, data);
             formData.fileUrl = data.fileUrl || '';
+            originalFileUrl.value = formData.fileUrl;
         }
     }
     editorShow.value = true;
@@ -336,6 +347,10 @@ const addOrEditForm = async () => {
             if (!formData.uploaderId) formData.uploaderId = userId.value;
             const { success } = await post(url, formData);
             if (success) {
+                if (formData.id && formData.fileUrl !== originalFileUrl.value) {
+                    const indexed = await post('/knowledgeDocument/reVectorize', { id: formData.id });
+                    if (!indexed.success) ElMessage.warning('文件已保存，请点击重新向量化重试');
+                }
                 editorShow.value = false;
                 fetchData();
                 ElMessage.success(formData.id ? '修改成功' : '上传成功，已开始向量化处理');
@@ -349,6 +364,9 @@ const showDetail = async (id) => {
     const { data, success } = await post('/knowledgeDocument/findById', { id });
     if (success && data) {
         detailData.value = data;
+        documentSources.value = [];
+        const sources = await post('/knowledgeDocument/sources', { id });
+        if (sources.success) documentSources.value = sources.data || [];
         // 加载分块数据
         const chunkRes = await post('/documentChunk/list', { knowledgeDocumentId: id, limit: 1000, page: 1 });
         if (chunkRes.success) {
