@@ -1,102 +1,56 @@
 package com.example.web.controller;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.beans.factory.annotation.Value;
-
 import com.example.web.common.FileResultDto;
 import com.example.web.exception.CustomException;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriUtils;
 import jakarta.servlet.http.HttpServletRequest;
 
-/**
- * 文件上传接口
- */
-@RestController()
+@RestController
 @RequestMapping("/File")
 public class FileController {
+    @Value("${server.ip}") private String serverIp;
+    private static final Set<String> ALLOWED = Set.of("jpg", "jpeg", "png", "gif", "webp", "bmp", "ico",
+            "mp4", "webm", "mov", "pdf", "txt", "md", "doc", "docx", "xls", "xlsx", "ppt", "pptx");
 
-    @Value("${server.ip}")
-    private String serverIp;
-
-    /**
-     * 批量文件上传
-     * 
-     * @param files 上传的文件
-     * @return
-     */
     @PostMapping("/batchUpload")
-    public ArrayList<FileResultDto> batchUpload(@RequestParam("file") MultipartFile[] files,
-            HttpServletRequest request) {
-        // 定义一个存储文件的列表
-        ArrayList<FileResultDto> fileResultDtos = new ArrayList<>();
-
-        // 获取项目运行的绝对路径
-        String filePath = System.getProperty("user.dir");
-
-        // 判断文件夹是否存在
-        if (!new File("external-resources/").exists()) {
-            // 创建文件夹
-            new File("external-resources/").mkdirs();
-        }
-
-        // 循环处理一下文件 是否满足格式,不满足直接报错给前端
+    public ArrayList<FileResultDto> batchUpload(@RequestParam("file") MultipartFile[] files, HttpServletRequest request) {
+        if (files == null || files.length == 0 || files.length > 10) throw new CustomException("每次请选择 1–10 个文件");
+        for (MultipartFile file : files) validate(file);
+        ArrayList<FileResultDto> results = new ArrayList<>();
+        Path base = Path.of("external-resources").toAbsolutePath().normalize();
         for (MultipartFile file : files) {
-            if (file.isEmpty()) {
-                throw new CustomException("文件不能为空");
-            }
-            if (file.getSize() <= 0) {
-                throw new CustomException("上传的文件不能为空!请重新上传");
-            }
-        }
-        // 循环保存文件到项目的src\main\resource\static路径下
-        for (MultipartFile file : files) {
-            // 获取文件原始的名称
-            String originFileName = file.getOriginalFilename();
-            // 生成一个随机数
-            Long randomNumber = (long) (Math.random() * 1000000000);
-
-            // 声明一个保存目录的路径
-            String dirPath = filePath + "\\external-resources\\" + randomNumber;
-
-            // 创建一个文件或者文件夹的操作对象
-            File dirFile = new File(dirPath);
-
-            // 判断文件是否存在 不存在的话执行下面的代码
-            if (!dirFile.exists()) {
-                // 创建这个目录
-                dirFile.mkdirs();
-            }
-            // 定义一个文件输出流
-            FileOutputStream fileOutputStream = null;
-            // try catch处理流 防止报错导致系统崩掉
+            String name = file.getOriginalFilename();
+            String folder = UUID.randomUUID().toString();
+            Path directory = base.resolve(folder);
             try {
-                // 创建一个文件
-                fileOutputStream = new FileOutputStream(dirPath + "\\" + originFileName);
-                // 把前端传入的内容以byte是格式写入到流里面
-                fileOutputStream.write(file.getBytes());
-                // 结束流
-                fileOutputStream.flush();
-                // 关闭流
-                fileOutputStream.close();
-                // 定义一个返回给前端的路径地址
-                String url = serverIp.replaceAll("/+$", "") + "/" + randomNumber + "/" + originFileName;
-                // 加入到返回的列表中
-                fileResultDtos.add(new FileResultDto(url, originFileName));
-
-            } catch (java.io.IOException e) {
-                e.printStackTrace();
-            }
-
+                Files.createDirectories(directory);
+                try (InputStream input = file.getInputStream()) { Files.copy(input, directory.resolve(name)); }
+                String url = serverIp.replaceAll("/+$", "") + "/" + folder + "/" + UriUtils.encodePathSegment(name, StandardCharsets.UTF_8);
+                results.add(new FileResultDto(url, name));
+            } catch (IOException error) { throw new CustomException("文件保存失败，请稍后重试"); }
         }
+        return results;
+    }
 
-        return fileResultDtos;
+    private void validate(MultipartFile file) {
+        if (file == null || file.isEmpty()) throw new CustomException("文件不能为空");
+        String name = file.getOriginalFilename();
+        if (name == null || name.isBlank() || name.length() > 180
+                || name.matches("(?s).*[\\\\/:*?\"<>|\\p{Cntrl}].*")) throw new CustomException("文件名无效，请重命名后上传");
+        int dot = name.lastIndexOf('.');
+        if (dot < 1 || !ALLOWED.contains(name.substring(dot + 1).toLowerCase(Locale.ROOT)))
+            throw new CustomException("支持图片、视频、PDF、TXT、Markdown 和 Office 文档");
     }
 }

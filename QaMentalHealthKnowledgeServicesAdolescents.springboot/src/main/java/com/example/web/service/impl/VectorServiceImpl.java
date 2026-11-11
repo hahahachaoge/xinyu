@@ -5,6 +5,7 @@ import com.example.web.entity.*;
 import com.example.web.enums.VectorStatusTypeEnum;
 import com.example.web.mapper.*;
 import com.example.web.service.VectorService;
+import com.example.web.utils.LocalDocumentFiles;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.document.parser.apache.tika.ApacheTikaDocumentParser;
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
@@ -33,6 +35,8 @@ public class VectorServiceImpl implements VectorService {
     private final EmbeddingModel embeddingModel;
     private final EmbeddingStore<TextSegment> embeddingStore;
     private final TransactionTemplate transactions;
+    @Value("${server.ip:http://localhost:7406}")
+    private String publicBase = "http://localhost:7406";
     private final Set<Integer> processing=ConcurrentHashMap.newKeySet();
     private final java.util.concurrent.atomic.AtomicBoolean bulkRunning=new java.util.concurrent.atomic.AtomicBoolean();
 
@@ -109,14 +113,7 @@ public class VectorServiceImpl implements VectorService {
         try {return id!=null && UUID.fromString(id).toString().equalsIgnoreCase(id);}catch(Exception e){return false;}
     }
     private Document parseDocument(String location) throws Exception {
-        if(location==null || location.isBlank()) throw new FileNotFoundException("原文件缺失");
-        Path base=Path.of("external-resources").toAbsolutePath().normalize();
-        Path file;
-        if(location.startsWith("http://") || location.startsWith("https://")) {
-            String relative=URI.create(location).getPath().replaceFirst("^/+","");
-            file=base.resolve(relative).normalize();
-        } else {file=Path.of(location).toAbsolutePath().normalize();}
-        if(!file.startsWith(base) || !Files.isRegularFile(file)) throw new FileNotFoundException("请重新上传原文件");
+        Path file=LocalDocumentFiles.resolve(location,publicBase);
         try(InputStream in=Files.newInputStream(file)) {return new ApacheTikaDocumentParser().parse(in);}
     }
 }

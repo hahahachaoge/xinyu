@@ -6,6 +6,8 @@
 
 2026-11-11：AI 调用、现有分块向量重建、溯源及聊天隔离已完成本地接口联调，见 [上线第 2 步](deployment-step-2-ai-rag.md)。文档 ID 4 仍缺少原资料，浏览器内验收与正式部署尚待完成。
 
+2026-11-11：生产配置、Nginx 代理、跨平台上传及发布文件已补充，见 [上线第 3 步](deployment-step-3.md)。目前无服务器，尚未公网部署。
+
 官方页面：[AI WEB 网页开发挑战赛](https://www.boxuegu.com/matchTrack/detail/?id=10037)。页面通过[公开详情接口](https://gateway.boxuegu.com/portal-marketing/competition/track/detail?id=10037&includeDetail=true)加载内容。本清单区分官方要求、已确认问题和改进建议，不代表官方评分或获奖预测。
 
 ## 已有基础

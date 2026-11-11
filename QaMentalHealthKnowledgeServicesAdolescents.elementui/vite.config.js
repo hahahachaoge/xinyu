@@ -53,4 +53,16 @@ export default defineConfig({
       },
     },
   },
+  // Local smoke check of the production build with the same /api layout as Nginx.
+  preview: {
+    port: 8000,
+    strictPort: true,
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:7406",
+        changeOrigin: true,
+        rewrite: (url) => url.replace(/^\/api/, ""),
+      },
+    },
+  },
 });

@@ -119,3 +119,5 @@ JWT_SECRET 请使用随机生成的长字符串。SQL 不提供账户密码；�
 权限、后端计分、首次管理员设置及后续上线顺序见 [上线第 1 步](docs/deployment-step-1.md)。更新后需要重启后端并重新登录，前后端应同时更新。
 
 AI 问答、向量重建、索引检查及真实联调结果见 [上线第 2 步](docs/deployment-step-2-ai-rag.md)。首次从 SQL 初始化后，管理员需在知识文档管理中执行“重建全部分块向量”，再验证 AI 回复与来源。
+
+生产配置、Nginx 模板、CMD 打包与本地预演见 [上线第 3 步](docs/deployment-step-3.md)。生产前端使用同站 `/api`，发布文件可通过 `scripts\package-production.cmd` 整理；密钥及真实数据库数据不随发布包分发。

@@ -62,6 +62,9 @@ public class KnowledgeDocumentServiceImpl extends ServiceImpl<KnowledgeDocumentM
     @Autowired
     private DeepSeekConfig deepSeekConfig;
 
+    @org.springframework.beans.factory.annotation.Value("${server.ip:http://localhost:7406}")
+    private String publicBase;
+
     /**
      * 构建表查询sql
      */
@@ -239,9 +242,7 @@ public class KnowledgeDocumentServiceImpl extends ServiceImpl<KnowledgeDocumentM
 
             // 计算文件大小
             try {
-                String relativePath = url.replaceFirst("http://[^/]+/", "");
-                String localPath = System.getProperty("user.dir") + "/external-resources/" + relativePath;
-                java.io.File file = new java.io.File(localPath);
+                java.io.File file = LocalDocumentFiles.resolve(url, publicBase).toFile();
                 if (file.exists()) {
                     long bytes = file.length();
                     if (bytes < 1024) {
@@ -326,28 +327,12 @@ public class KnowledgeDocumentServiceImpl extends ServiceImpl<KnowledgeDocumentM
      * 解析文件内容（使用Apache Tika）
      */
     private String parseFileContent(String fileUrl) {
-        try {
-            java.io.InputStream inputStream;
-            if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
-                // 从URL路径解析出本地文件路径
-                String relativePath = fileUrl.replaceFirst("http://[^/]+/", "");
-                String localPath = System.getProperty("user.dir") + "/external-resources/" + relativePath;
-                java.io.File file = new java.io.File(localPath);
-                if (file.exists()) {
-                    inputStream = new java.io.FileInputStream(file);
-                } else {
-                    // 尝试直接从URL下载
-                    inputStream = new java.net.URL(fileUrl).openStream();
-                }
-            } else {
-                inputStream = new java.io.FileInputStream(new java.io.File(fileUrl));
-            }
-
+        try (java.io.InputStream inputStream = java.nio.file.Files.newInputStream(LocalDocumentFiles.resolve(fileUrl, publicBase))) {
             dev.langchain4j.data.document.DocumentParser parser = new dev.langchain4j.data.document.parser.apache.tika.ApacheTikaDocumentParser();
             dev.langchain4j.data.document.Document document = parser.parse(inputStream);
             return document.text();
         } catch (Exception e) {
-            throw new RuntimeException("文件解析失败: " + e.getMessage(), e);
+            throw new CustomException("原文件不可用，请重新上传文件后再解析");
         }
     }
 

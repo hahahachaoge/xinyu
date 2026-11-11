@@ -1,5 +1,5 @@
 server:
-  ip: http://localhost:7406 
+  ip: ${PUBLIC_API_URL:http://localhost:7406}
   tomcat: #tomact 服务器的配置
     relaxed-query-chars: '|,{,},[,]'  #进行get请求到时候 如何参数包含[,{,},] 认为是正常的
   port: 7406 # 端口
@@ -15,7 +15,7 @@ spring:
   datasource: #数据库的配置
     username: ${MYSQL_USERNAME:root} #数据库的账号
     password: ${MYSQL_PASSWORD:} #数据库的密码
-    url: jdbc:mysql://localhost:3306/qa_mental_health_knowledge_services_adolescents?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/qa_mental_health_knowledge_services_adolescents?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
   jackson: # json序列号配置
     date-format: yyyy-MM-dd HH:mm:ss #设置标准的时间格式
     time-zone: Asia/Shanghai #时间对于的时区
@@ -57,9 +57,9 @@ langchain4j:
 
   # PGVector配置 (当type=pgvector时生效)
   pgvector:
-    host: localhost # PostgreSQL主机地址
-    port: 5432 # PostgreSQL端口
-    database: qa_mental_health_knowledge_services_adolescents # 数据库名
+    host: ${PGVECTOR_HOST:localhost}
+    port: ${PGVECTOR_PORT:5432}
+    database: ${PGVECTOR_DATABASE:qa_mental_health_knowledge_services_adolescents}
     user: ${PGVECTOR_USER:postgres} # 数据库用户名
     password: ${PGVECTOR_PASSWORD:} # 数据库密码
     table: qa_mental_health_knowledge_services_adolescents # 向量表名
