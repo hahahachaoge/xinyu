@@ -2,7 +2,7 @@
 
 面向 Web 浏览器的心理健康知识服务应用，提供 AI 问答、心理自评、科普阅读和后台管理。项目采用 Vue 3、Spring Boot 和检索增强生成（RAG）：业务数据保存在 MySQL，知识向量保存在 PostgreSQL 的 pgvector 扩展中，后端调用 DeepSeek 生成回答。
 
-代码仓库：[hahahachaoge/xinyu](https://github.com/hahahachaoge/xinyu)。目前为私有仓库，评审前需授予评委访问权限或由所有者改为公开；仅提交链接不会自动开放访问。具体见 [代码仓库交付检查](docs/repository-checklist.md)。
+代码仓库：[hahahachaoge/xinyu](https://github.com/hahahachaoge/xinyu)，已设为 **Public**，评委无需 GitHub 登录即可查看代码、README 和提交历史。具体见 [代码仓库交付检查](docs/repository-checklist.md)。
 
 ## 主要功能
 
@@ -84,7 +84,7 @@ qa_mental_health_knowledge_services_adolescents.sql   新库初始化文件
 
 ### 1. 克隆仓库并配置本地环境
 
-私有仓库需先取得 GitHub 访问权限。在放置项目的目录执行：
+在放置项目的目录执行，公开仓库无需额外评审授权：
 
 ```cmd
 git clone https://github.com/hahahachaoge/xinyu.git

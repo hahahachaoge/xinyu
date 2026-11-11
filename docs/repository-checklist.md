@@ -4,20 +4,17 @@
 
 | 要求 | 已提供的内容 | 状态 |
 | --- | --- | --- |
-| 托管平台 | [GitHub 仓库](https://github.com/hahahachaoge/xinyu)，主分支 main | 已托管；当前 Private，仍需落实评审访问权限 |
+| 托管平台 | [GitHub 仓库](https://github.com/hahahachaoge/xinyu)，主分支 main | 已设为 Public，评委无需登录即可查看 |
 | 代码规范 | 前后端分目录；后端分层；关键流程与配置注释；[代码规范](code-conventions.md) | 已检查现有结构并补充规范说明，未做全项目格式重写 |
 | README | 项目介绍、功能、架构图、技术栈、CMD 安装运行、测试与团队栏 | 已补齐文档结构；真实团队信息待所有者填写 |
-| Git 记录 | 保留从首次导入到实际功能和修复的提交，后续使用 Conventional Commits | 原有 7 条真实提交保留，本次文档另行提交，不伪造或改写历史 |
+| Git 记录 | 保留从首次导入到实际功能和修复的提交，后续使用 Conventional Commits | 原有真实提交全部保留，文档补充另行提交，不伪造或改写历史 |
 | 环境配置 | `.env.example`、[变量及依赖说明](environment.md)、前端 package.json / lock、后端 pom.xml | 已提供；真实密码和 Key 保留在本地 |
 
 ## 评审访问
 
-截图允许两种方式，完成其中一种即可：
+所有者已明确选择 Public，并完成 GitHub 身份验证；2026-11-11 仓库设置已确认显示公开。评委可直接打开仓库链接查看代码与提交历史，不需要单独邀请，也不需要拥有 GitHub 账号。
 
-1. **保留私有仓库**：取得评委或组委会指定的 GitHub 用户名，由所有者在仓库 Settings → Collaborators 中授权，评委接受邀请后验证访问。
-2. **改成 Public**：所有者确认公开后，任何人都能查看代码和 Git 历史；完成公开后使用未登录浏览器验证仓库首页可访问。
-
-目前未擅自更改可见性，也未邀请任何未指定的账号。私有仓库的链接本身不授予访问权限。
+公开源码不等于网页已经公网部署。评委本地运行仍需按 README 配置自己的数据库与模型服务凭据。
 
 仓库账号与网站账号相互独立：`user` / `admin` 是应用内测试账号，不能用于登录 GitHub。
 
@@ -35,7 +32,7 @@
 
 ## Git 历史查看
 
-评审者取得权限后，在 CMD 中执行：
+评审者在 CMD 中执行：
 
 ```cmd
 git clone https://github.com/hahahachaoge/xinyu.git
