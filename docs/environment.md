@@ -1,6 +1,6 @@
 # 环境配置与依赖清单
 
-本说明对应仓库现有配置，不修改数据结构、量表或知识内容。本地操作使用 Windows CMD，启动入口见 [README](../README.md)。
+文档复核日期：2026-11-14。本说明对应仓库现有配置，不修改数据结构、量表或知识内容。本地操作使用 Windows CMD，启动入口见 [README](../README.md)。
 
 ## 工具与服务
 
@@ -110,7 +110,7 @@ Spring Boot 配置导入 `../.env.properties` 与 `.env.properties`，路径相�
 | RAG | LangChain4j 核心、open-ai、pgvector、Tika 文档解析器、all-minilm-l6-v2，均为 `0.34.0` |
 | 中文与其他 | HanLP `portable-1.8.4`、os-spring-boot-starter（POM 当前使用 `LATEST`） |
 
-`os-spring-boot-starter` 的版本声明为动态 `LATEST`，并非锁定版本；当前本地缓存解析为 `1.2.0`，其他环境以实际 Maven 解析结果为准。本次仅补文档，不更换依赖或改业务代码。可在后端目录查看实际依赖树：
+`os-spring-boot-starter` 的版本声明为动态 `LATEST`，并非锁定版本；既有本地环境记录解析为 `1.2.0`，本次未重新下载依赖，其他环境以实际 Maven 解析结果为准。本次仅复核文档，不更换依赖或改业务代码。可在后端目录查看实际依赖树：
 
 ```cmd
 mvn.cmd dependency:tree "-Dmaven.repo.local=.maven-repository"

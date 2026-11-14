@@ -8,6 +8,7 @@
 
 快速查看：[主要功能](#主要功能) · [技术架构](#技术架构) · [安装与运行](#安装与运行) · [团队信息与成员分工](#团队信息)
 
+- [参赛交付清单与当前状态](docs/competition-checklist.md)
 - [环境配置与依赖清单](docs/environment.md)
 - [评委账号与验收方法](docs/judging-demo.md)
 - [代码仓库交付检查](docs/repository-checklist.md)
@@ -190,7 +191,7 @@ mvn.cmd test "-Dmaven.repo.local=.maven-repository"
 mvn.cmd package "-Dmaven.repo.local=.maven-repository"
 ```
 
-前端输出 `dist/`，后端输出 `target/web-0.0.1-SNAPSHOT.jar`。从项目根目录执行 `scripts\package-production.cmd` 可整理已有构建产物。公网服务器部署尚未完成；生产配置、Nginx 模板及打包方法见 [部署说明](docs/deployment-step-3.md)。
+前端输出 `dist/`，后端输出 `target/web-0.0.1-SNAPSHOT.jar`。从项目根目录执行 `scripts\package-production.cmd` 可整理已有构建产物。仓库尚未记录已验收的公网演示地址；生产配置、Nginx 模板及打包方法见 [部署说明](docs/deployment-step-3.md)。
 
 ## 团队信息
 
