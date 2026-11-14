@@ -4,6 +4,17 @@
 
 代码仓库：[hahahachaoge/xinyu](https://github.com/hahahachaoge/xinyu)，已设为 **Public**，评委无需 GitHub 登录即可查看代码、README 和提交历史。具体见 [代码仓库交付检查](docs/repository-checklist.md)。
 
+## 文档导航
+
+快速查看：[主要功能](#主要功能) · [技术架构](#技术架构) · [安装与运行](#安装与运行) · [团队信息与成员分工](#团队信息)
+
+- [环境配置与依赖清单](docs/environment.md)
+- [评委账号与验收方法](docs/judging-demo.md)
+- [代码仓库交付检查](docs/repository-checklist.md)
+- [协作与代码规范](docs/code-conventions.md)
+- [生产部署与打包](docs/deployment-step-3.md)
+- [知识资料维护说明](docs/knowledge-provenance.md)
+
 ## 主要功能
 
 - 智能问答：知识检索、DeepSeek 流式回答、多轮会话、聊天历史和满意度反馈。聊天页面不显示片段编号及来源标签。
@@ -190,9 +201,8 @@ mvn.cmd package "-Dmaven.repo.local=.maven-repository"
 | 学校 / 单位 | 华南师范大学 |
 | 团队名称 | 不知名队伍 |
 | 队长 | 黄彪骐 |
-| 指导教师 | 待填写 |
+| 指导教师 | 刘寿强 |
 | 队员 | 蓝俊豪、林佳逸 |
-| 联系方式 | 待填写 |
 
 ### 成员分工
 
@@ -202,7 +212,7 @@ mvn.cmd package "-Dmaven.repo.local=.maven-repository"
 | 蓝俊豪 | 队员 · 内容素材与视觉创作 | 负责项目相关素材的收集、筛选与整理，以及配套图片的创作，为页面展示和内容呈现提供视觉素材支持。 |
 | 林佳逸 | 队员 · 前端设计与测试部署 | 负责前端页面布局与交互设计，开展功能测试和页面效果验证，并承担上线部署相关工作。 |
 
-以上为团队职责分配，不代表公网部署已完成；实际部署状态以项目部署说明和验收结果为准。指导教师及联系方式尚未提供，暂保留“待填写”。
+以上为团队职责分配，不代表公网部署已完成；实际部署状态以项目部署说明和验收结果为准。
 
 ## 代码规范与 Git 历史
 
@@ -215,14 +225,5 @@ git log --oneline --graph --all
 ```
 
 评审时请使用 `git clone` 获取仓库；下载 ZIP 不包含 `.git` 提交历史。
-
-## 文档导航
-
-- [环境配置与依赖清单](docs/environment.md)
-- [评委账号与验收方法](docs/judging-demo.md)
-- [代码仓库交付检查](docs/repository-checklist.md)
-- [协作与代码规范](docs/code-conventions.md)
-- [生产部署与打包](docs/deployment-step-3.md)
-- [知识资料维护说明](docs/knowledge-provenance.md)
 
 本地密钥、数据库备份、依赖缓存、日志和构建产物不纳入版本管理。`external-resources` 中已有演示素材随仓库提供；新增上传文件和私人业务数据不会自动成为交付内容。
