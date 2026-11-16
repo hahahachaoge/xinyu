@@ -27,3 +27,7 @@ Thumbs.db
 
 .local/
 release/
+
+# Private document drafts and QA outputs; public deliverables live in docs/submission
+output/
+tmp/

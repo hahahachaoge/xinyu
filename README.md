@@ -4,12 +4,15 @@
 
 代码仓库：[hahahachaoge/xinyu](https://github.com/hahahachaoge/xinyu)，已设为 **Public**，评委无需 GitHub 登录即可查看代码、README 和提交历史。具体见 [代码仓库交付检查](docs/repository-checklist.md)。
 
-在线演示：[心屿（HTTPS）](https://xinyu-care.xyz/#/front/home)。2026-11-15 已根据公网页面及服务器执行结果确认首页访问、HTTPS 和证书自动续期模拟检查通过；这不代表登录、问答、测评等线上功能已全部完成验收。已安装的图片 WebP 优化与本地前端更新的发布状态，见 [部署说明](docs/deployment-step-3.md)。
+在线演示：[心屿（HTTPS）](https://xinyu-care.xyz/#/front/home)。平台已正式上线，由服务器持续运行，开发电脑关闭后仍可访问。评审可先在线体验，或按下文在自己的环境复现。
+
+**最新版材料：[提交材料总入口](docs/delivery.md) · [技术方案 PDF](docs/submission/technical-plan.pdf) · [技术方案 Word](docs/submission/technical-plan.docx) · [技术方案文字版](docs/submission/technical-plan.md)。** 技术方案保留论文式两级目录、彩色技术配图以及测评和科普阅读页面截图。
 
 ## 文档导航
 
 快速查看：[主要功能](#主要功能) · [技术架构](#技术架构) · [安装与运行](#安装与运行) · [团队信息与成员分工](#团队信息)
 
+- [最新版材料与提交步骤](docs/delivery.md)
 - [参赛交付清单与当前状态](docs/competition-checklist.md)
 - [环境配置与依赖清单](docs/environment.md)
 - [评委账号与验收方法](docs/judging-demo.md)
@@ -195,7 +198,7 @@ mvn.cmd package "-Dmaven.repo.local=.maven-repository"
 
 前端输出 `dist/`，后端输出 `target/web-0.0.1-SNAPSHOT.jar`。从项目根目录执行 `scripts\package-production.cmd` 可整理已有构建产物。生产配置、Nginx 模板、当前公网验收范围及打包方法见 [部署说明](docs/deployment-step-3.md)。
 
-本地前端版本保留首页组件直接加载，其他页面按路由加载，减少首次进入首页时必须下载和执行的后台图表、编辑器代码。文章详情的留言输入区与发表操作区分别布局；验收时应检查输入框聚焦、发表评论及回复模式下的间距。上述本地更新尚未确认部署到公网，不将本地构建或截图检查表述为线上已验收；具体检查方法见 [评委运行说明](docs/judging-demo.md)。
+当前源码保留首页组件直接加载，其他页面按路由加载；文章留言输入区与发表操作区分开布局。线上发布与复核方法见 [生产部署说明](docs/deployment-step-3.md)，测试证据和验证范围见 [验证记录](docs/verification.md)。
 
 ## 团队信息
 
@@ -217,7 +220,7 @@ mvn.cmd package "-Dmaven.repo.local=.maven-repository"
 | 蓝俊豪 | 队员 · 内容素材与视觉创作 | 负责项目相关素材的收集、筛选与整理，以及配套图片的创作，为页面展示和内容呈现提供视觉素材支持。 |
 | 林佳逸 | 队员 · 前端设计与测试部署 | 负责前端页面布局与交互设计，开展功能测试和页面效果验证，并承担上线部署相关工作。 |
 
-以上为团队职责分配；实际部署状态及已确认的验收范围以项目部署说明为准。
+项目此前未发表、未获奖，非基于其他项目进行优化或改进。项目使用的通用开源框架、第三方模型服务及素材应分别遵守其许可和使用条件。
 
 ## 代码规范与 Git 历史
 
