@@ -18,7 +18,7 @@
 | 代码仓库 | GitHub Public，保留完整真实 Git 历史 | [公开仓库](https://github.com/hahahachaoge/xinyu) |
 | README | 项目、架构、安装运行与团队信息已统一 | [README](../README.md) |
 | 环境配置 | 空密钥模板、前后端依赖与 CMD 运行方法已提供 | [环境配置](environment.md) |
-| 技术文档 | 当前正式 PDF 为 26 页，含测评、科普截图及作品声明 | [技术 PDF](submission/technical-plan.pdf) |
+| 技术文档 | 当前正式 PDF 为 25 页，含测评、科普截图及作品声明 | [技术 PDF](submission/technical-plan.pdf) |
 | 可编辑文档 | 正文、团队和上线信息与技术 PDF 同源 | [Word](submission/technical-plan.docx) |
 | 演示视频 | 5–8 分钟、MP4、1080p 及以上、普通话；待提供审核通过后的播放链接 | 表单第 7 项填 B 站等平台播放链接，不填网盘 |
 | 完整文件 | 源码、PDF、运行说明需整理至可访问网盘；待生成分享链接 | 表单第 5 项填网盘链接与提取码 |

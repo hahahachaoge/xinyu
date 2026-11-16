@@ -6,21 +6,21 @@
 
 | 材料 | 统一入口 | 用途 |
 | --- | --- | --- |
-| 技术方案 PDF | [technical-plan.pdf](submission/technical-plan.pdf) | 比赛表单的作品介绍文档；26 页，包含功能截图、技术配图、两级目录及作品声明 |
+| 技术方案 PDF | [technical-plan.pdf](submission/technical-plan.pdf) | 比赛表单的作品介绍文档；25 页，包含功能截图、技术配图、两级目录及作品声明 |
 | 技术方案 Word | [technical-plan.docx](submission/technical-plan.docx) | 与 PDF 正文一致的可编辑稿；排版和页码以 PDF 为提交依据 |
 | 技术方案文字版 | [technical-plan.md](submission/technical-plan.md) | 浏览器中查阅正文，配图以 PDF 为准 |
 | 环境与运行 | [项目 README](../README.md)、[环境配置](environment.md) | 前端 8000、后端 7406；CMD 命令、依赖和空密钥模板 |
 | 评委使用 | [评委说明](judging-demo.md) | 固定演示账号、使用方法与测试步骤 |
 | 版本校验 | [文件校验清单](submission/manifest.json) | 核对 PDF、Word、文字版是否为同一整合版本 |
 
-以上固定路径为当前版本，后续统一在这些路径更新。GitHub main 与本地 docs 使用同一组材料；本地 output 下的“最新版”文件为便捷副本。较早的重写版、排版优化版和上线补充版已归档至本地 output/archive/，不作为提交稿。桌面论文目录版保留为本次整合的原始依据，不自动覆盖。
+以上固定路径为当前版本，后续统一在这些路径更新。GitHub main 与本地 docs 使用同一组材料；本地 output 下的“最新版”文件为便捷副本。较早的重写版、排版优化版和上线补充版已归档至本地 output/archive/，不作为提交稿。桌面现用 PDF 已同步修订；修订前的稿件在本地保留备份。
 
 ## 在线体验与代码
 
 - 网站：[心屿](https://xinyu-care.xyz/#/front/home)，已正式上线。
 - 源码：[hahahachaoge/xinyu](https://github.com/hahahachaoge/xinyu)，公开仓库，保留完整真实提交历史。
 - 测试账号：`user / 12345678`（用户）、`admin / 12345678`（管理员）。本地复现需启用 demo 模式；公网账号以登录实际结果为准，不在本次文档整理中重置。
-- 项目定位：PC Web 心理健康知识服务。AI 回答和心理自评结果用于参考和自我了解，不替代专业诊断或治疗。
+- 项目定位：PC Web 心理健康知识服务。
 
 ## 对照当前提交表单
 

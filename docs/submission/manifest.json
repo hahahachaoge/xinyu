@@ -1,19 +1,20 @@
 {
   "version": "2026-11-16",
+  "revision": "删除用途限制说明及参考资料章",
   "team": "不知名队伍-",
-  "pdf_pages": 26,
+  "pdf_pages": 25,
   "files": {
     "technical-plan.pdf": {
-      "sha256": "fbf9cdc92e759782a013193334e707b6752d98e7e29d85f0e291bb3cbff70298",
-      "bytes": 13425707
+      "sha256": "39c7bf700a2a026cae8caa7555ebcfdd36ba4953a90f402f29a78ea60fde932c",
+      "bytes": 13518959
     },
     "technical-plan.docx": {
-      "sha256": "5a9c054a3b278dc1a63d1b0c8f8f6c93b1116893c68892321b4edacf40e02a39",
-      "bytes": 5345857
+      "sha256": "49c063287b3dc27afd7b8025260c0591d7d3228b486348039c6b46b78ed78ea2",
+      "bytes": 5344370
     },
     "technical-plan.md": {
-      "sha256": "35972f6d076e1628ef70511b0d7bef79522fa4073142c3126fba6aa0323a5e54",
-      "bytes": 37586
+      "sha256": "336e0109496aaba90ece83d4bed1d023b05cc70ed9501873e4838605844bc874",
+      "bytes": 36088
     }
   }
 }
